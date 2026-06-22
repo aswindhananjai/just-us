@@ -87,13 +87,14 @@ export default function MemoryDetail() {
   const handleDeleteConfirm = async () => {
     setDeleting(true);
     try {
+      // Soft delete: set is_active to false instead of deleting the record
       const { error } = await supabase
         .from('memories')
-        .delete()
+        .update({ is_active: false })
         .eq('id', id);
 
       if (error) throw error;
-      navigate('/');
+      navigate('/memories');
     } catch (error) {
       console.error('Error deleting memory:', error);
       alert('Failed to delete memory');

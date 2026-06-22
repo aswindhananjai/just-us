@@ -3,6 +3,7 @@ export const MEMORY_CATEGORIES = [
     id: 'first',
     name: 'First',
     label: 'First',
+    emoji: '❤️',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
@@ -15,6 +16,7 @@ export const MEMORY_CATEGORIES = [
     id: 'trip',
     name: 'Trip',
     label: 'Trip',
+    emoji: '✈️',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
@@ -27,6 +29,7 @@ export const MEMORY_CATEGORIES = [
     id: 'gift',
     name: 'Gift',
     label: 'Gift',
+    emoji: '🎁',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="8" width="18" height="4" rx="1" />
@@ -42,6 +45,7 @@ export const MEMORY_CATEGORIES = [
     id: 'moment',
     name: 'Moment',
     label: 'Moment',
+    emoji: '📷',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
@@ -55,6 +59,7 @@ export const MEMORY_CATEGORIES = [
     id: 'celebration',
     name: 'Celebration',
     label: 'Celebration',
+    emoji: '🎉',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M5.8 11.3 2 22l10.7-3.79" />
@@ -75,6 +80,7 @@ export const MEMORY_CATEGORIES = [
     id: 'special_day',
     name: 'Special Day',
     label: 'Special Day',
+    emoji: '🌟',
     icon: (
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />

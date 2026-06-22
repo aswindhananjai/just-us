@@ -37,6 +37,7 @@ function ProtectedRoute({ children }) {
 function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [isLocked, setIsLocked] = useState(!isAuthenticated());
 
   useEffect(() => {
     // Request notification permission when user is authenticated
@@ -52,6 +53,17 @@ function AppContent() {
   }, []);
 
   useEffect(() => {
+    // Keep isLocked state in sync with authentication status
+    const checkAuth = () => {
+      if (!isAuthenticated()) {
+        setIsLocked(true);
+      }
+    };
+    const interval = setInterval(checkAuth, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
     // Auto-lock when app goes to background
     const handleVisibilityChange = () => {
       // When page becomes hidden (app goes to background)
@@ -63,9 +75,9 @@ function AppContent() {
         const backgroundedAt = localStorage.getItem('justus_backgrounded_at');
 
         if (backgroundedAt && isAuthenticated() && location.pathname !== '/lock') {
-          // Lock the app immediately when returning from background
+          // Lock the app immediately, setting isLocked to true and calling logout
           logout();
-          navigate('/lock', { replace: true });
+          setIsLocked(true);
           localStorage.removeItem('justus_backgrounded_at');
         }
       }
@@ -76,61 +88,70 @@ function AppContent() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [navigate, location.pathname]);
+  }, [location.pathname]);
 
   return (
-    <Routes>
-      <Route path="/lock" element={<PasscodeLock />} />
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <Timeline />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/memories"
-        element={
-          <ProtectedRoute>
-            <AllMemories />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/add"
-        element={
-          <ProtectedRoute>
-            <AddMemory />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/memory/:id"
-        element={
-          <ProtectedRoute>
-            <MemoryDetail />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/settings"
-        element={
-          <ProtectedRoute>
-            <Settings />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/edit/:id"
-        element={
-          <ProtectedRoute>
-            <AddMemory />
-          </ProtectedRoute>
-        }
-      />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <>
+      <Routes>
+        <Route path="/lock" element={<PasscodeLock onSuccess={() => { setIsLocked(false); navigate('/'); }} />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Timeline />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/memories"
+          element={
+            <ProtectedRoute>
+              <AllMemories />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add"
+          element={
+            <ProtectedRoute>
+              <AddMemory />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/memory/:id"
+          element={
+            <ProtectedRoute>
+              <MemoryDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit/:id"
+          element={
+            <ProtectedRoute>
+              <AddMemory />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
+      {/* Global screen overlay lock */}
+      {isLocked && location.pathname !== '/lock' && (
+        <div className="global-lock-overlay">
+          <PasscodeLock onSuccess={() => setIsLocked(false)} />
+        </div>
+      )}
+    </>
   );
 }
 

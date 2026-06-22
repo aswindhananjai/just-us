@@ -416,3 +416,11 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Scattered emoji default cover background wrapper */
+.memory-card-default-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  display: block;
+}

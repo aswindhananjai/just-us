@@ -248,6 +248,13 @@ input::placeholder, textarea::placeholder {
   background: var(--color-background);
 }
 
+.global-lock-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: var(--color-background);
+}
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }

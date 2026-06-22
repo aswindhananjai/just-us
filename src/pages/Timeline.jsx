@@ -29,10 +29,11 @@ export default function Timeline() {
 
   const fetchData = async () => {
     try {
-      // Fetch memories
+      // Fetch active memories only (soft delete filter)
       const { data, error } = await supabase
         .from('memories')
         .select('*')
+        .eq('is_active', true)
         .order('date', { ascending: false });
 
       if (error) throw error;
@@ -125,12 +126,51 @@ export default function Timeline() {
     <div className="timeline-page">
       {/* Gradient Hero */}
       <div className="gradient-hero">
-        {/* Floating hearts decoration */}
-        <svg className="float-heart" width="38" height="38" viewBox="0 0 24 24" fill="none">
+        {/* Floating decorative icons */}
+        <svg className="float-icon float-heart" width="38" height="38" viewBox="0 0 24 24" fill="none">
           <path d="M12 21s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.6 4.5 4.5 0 0 1 19.5 11c0 5.4-7.5 10-7.5 10Z" fill="currentColor" />
         </svg>
-        <svg className="float-heart" width="32" height="32" viewBox="0 0 24 24" fill="none">
+        <svg className="float-icon float-heart-small" width="32" height="32" viewBox="0 0 24 24" fill="none">
           <path d="M12 21s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.6 4.5 4.5 0 0 1 19.5 11c0 5.4-7.5 10-7.5 10Z" fill="currentColor" />
+        </svg>
+
+        {/* Stethoscope icon */}
+        <svg className="float-icon float-stethoscope" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" />
+          <path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" />
+          <circle cx="20" cy="10" r="2" />
+        </svg>
+
+        {/* Car icon */}
+        <svg className="float-icon float-car" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+          <circle cx="7" cy="17" r="2" />
+          <path d="M9 17h6" />
+          <circle cx="17" cy="17" r="2" />
+        </svg>
+
+        {/* Travel suitcase icon */}
+        <svg className="float-icon float-suitcase" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="7" width="18" height="13" rx="2" />
+          <path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+          <path d="M3 12h18" />
+          <path d="M8 12v7" />
+          <path d="M16 12v7" />
+        </svg>
+
+        {/* Movie clapperboard icon */}
+        <svg className="float-icon float-movie" width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z" />
+          <path d="m6.2 5.3 3.1 3.9" />
+          <path d="m12.4 3.4 3.1 4" />
+          <path d="m3 11 18.5-5.6c1 -.3 2 .4 2 1.5V21a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-9c0-.6.4-1 1-1Z" />
+        </svg>
+
+        {/* Music note icon */}
+        <svg className="float-icon float-music" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 18V5l12-2v13" />
+          <circle cx="6" cy="18" r="3" />
+          <circle cx="18" cy="16" r="3" />
         </svg>
 
         {/* Duo photos - rotated */}
@@ -209,9 +249,9 @@ export default function Timeline() {
                     )
                   }
                   <div className="memory-gradient-overlay"></div>
-                  {/* Category badge — white pill like design */}
-                  <span className="memory-category-badge">
-                    <span className="badge-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 0 }}>{category.icon}</span>
+                  {/* Category badge — white background with colored text */}
+                  <span className="memory-category-badge" style={{ background: '#fff', color: category.textColor }}>
+                    <span className="badge-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 0, color: category.textColor }}>{category.icon}</span>
                     {category.name}
                   </span>
                   <div className="memory-card-content">

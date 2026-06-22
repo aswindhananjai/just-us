@@ -210,6 +210,18 @@
   justify-content: center;
 }
 
+.placeholder-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+
+.placeholder-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
 .memory-info {
   flex: 1;
   min-width: 0;

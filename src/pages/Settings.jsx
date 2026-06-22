@@ -58,10 +58,8 @@ export default function Settings() {
   };
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to lock the app?')) {
-      logout();
-      navigate('/lock');
-    }
+    logout();
+    navigate('/lock');
   };
 
   const handleProfilePictureUpload = async (event) => {

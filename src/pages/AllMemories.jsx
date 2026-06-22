@@ -68,9 +68,11 @@ export default function AllMemories() {
   const loadMemories = async () => {
     try {
       setLoading(true);
+      // Fetch active memories only (soft delete filter)
       const { data, error } = await supabase
         .from('memories')
         .select('*')
+        .eq('is_active', true)
         .order('date', { ascending: false });
 
       if (error) throw error;
@@ -323,10 +325,10 @@ export default function AllMemories() {
                           className="memory-thumbnail"
                         />
                       ) : (
-                        <div className="memory-thumbnail-placeholder" style={{ background: categoryStyle.bg }}>
-                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={categoryStyle.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 2 9.2 8.6 2 9.2l5.5 4.7L5.8 21 12 17.3 18.2 21l-1.7-7.1L22 9.2l-7.2-.6L12 2Z"></path>
-                          </svg>
+                        <div className="memory-thumbnail-placeholder" style={{ background: categoryStyle.bg, color: categoryStyle.color }}>
+                          <span className="placeholder-icon">
+                            {categoryStyle.icon}
+                          </span>
                         </div>
                       )}
                       <div className="memory-info">

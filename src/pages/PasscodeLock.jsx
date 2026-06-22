@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { verifyPasscode, setAuthenticated } from '../utils/auth';
 import '../styles/PasscodeLock.css';
 
-export default function PasscodeLock() {
+export default function PasscodeLock({ onSuccess }) {
   const [passcode, setPasscode] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -30,7 +30,11 @@ export default function PasscodeLock() {
 
     if (userName) {
       setAuthenticated(true, userName);
-      navigate('/');
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        navigate('/');
+      }
     } else {
       setError('Try again.');
       setTimeout(() => {
