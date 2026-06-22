@@ -27,7 +27,7 @@ export default function Settings() {
     }
   };
 
-  const handleProfilePictureUpload = async (user, event) => {
+  const handleProfilePictureUpload = async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -44,25 +44,28 @@ export default function Settings() {
     }
 
     try {
-      setUploading({ ...uploading, [user.toLowerCase()]: true });
+      setUploading({ ...uploading, [currentUser.toLowerCase()]: true });
 
       const imageUrl = await uploadImage(file);
 
       // Store in localStorage
-      localStorage.setItem(`profile_picture_${user.toLowerCase()}`, imageUrl);
+      localStorage.setItem(`profile_picture_${currentUser.toLowerCase()}`, imageUrl);
 
       // Update state
       setProfilePictures({
         ...profilePictures,
-        [user.toLowerCase()]: imageUrl,
+        [currentUser.toLowerCase()]: imageUrl,
       });
 
-      alert(`${user}'s profile picture updated successfully!`);
+      alert('Profile picture updated successfully!');
+
+      // Reload the page to update the header
+      window.location.reload();
     } catch (error) {
       console.error('Error uploading profile picture:', error);
       alert('Failed to upload profile picture. Please try again.');
     } finally {
-      setUploading({ ...uploading, [user.toLowerCase()]: false });
+      setUploading({ ...uploading, [currentUser.toLowerCase()]: false });
     }
   };
 
@@ -80,21 +83,20 @@ export default function Settings() {
           </div>
         </div>
 
-        {/* Profile Pictures Section */}
+        {/* Profile Picture Section - Only current user */}
         <div className="profile-pictures-section">
-          <h2 className="section-title">Profile Pictures</h2>
+          <h2 className="section-title">Profile Picture</h2>
 
-          {/* Aswin's Profile Picture */}
           <div className="profile-picture-card">
             <div className="profile-picture-header">
               <div className="profile-info">
                 <img
-                  src={profilePictures.aswin}
-                  alt="Aswin"
+                  src={profilePictures[currentUser.toLowerCase()]}
+                  alt={currentUser}
                   className="profile-preview"
                 />
                 <div>
-                  <h3>Aswin's Picture</h3>
+                  <h3>Your Picture</h3>
                   <p className="profile-hint">Square images work best</p>
                 </div>
               </div>
@@ -103,38 +105,11 @@ export default function Settings() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => handleProfilePictureUpload('Aswin', e)}
-                disabled={uploading.aswin}
+                onChange={handleProfilePictureUpload}
+                disabled={uploading[currentUser.toLowerCase()]}
                 style={{ display: 'none' }}
               />
-              {uploading.aswin ? 'Uploading...' : 'Change Picture'}
-            </label>
-          </div>
-
-          {/* Anu's Profile Picture */}
-          <div className="profile-picture-card">
-            <div className="profile-picture-header">
-              <div className="profile-info">
-                <img
-                  src={profilePictures.anu}
-                  alt="Anu"
-                  className="profile-preview"
-                />
-                <div>
-                  <h3>Anu's Picture</h3>
-                  <p className="profile-hint">Square images work best</p>
-                </div>
-              </div>
-            </div>
-            <label className="upload-btn">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => handleProfilePictureUpload('Anu', e)}
-                disabled={uploading.anu}
-                style={{ display: 'none' }}
-              />
-              {uploading.anu ? 'Uploading...' : 'Change Picture'}
+              {uploading[currentUser.toLowerCase()] ? 'Uploading...' : 'Change Picture'}
             </label>
           </div>
         </div>

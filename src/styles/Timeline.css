@@ -1,186 +1,252 @@
+/* Timeline - Modern Minimalistic Design */
+
 .timeline-page {
   min-height: 100vh;
+  background: var(--color-background);
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 
-.timeline-header {
-  background: linear-gradient(135deg, #014F86 0%, #0169b3 100%);
-  padding: var(--spacing-2xl) var(--spacing-lg);
-  border-radius: 0 0 28px 28px;
-  box-shadow: 0 4px 20px rgba(1, 79, 134, 0.15);
-  margin-bottom: var(--spacing-lg);
-}
-
-.header-content {
+/* Modern Header */
+.modern-header {
+  padding: var(--spacing-xl) var(--spacing-lg);
   max-width: 768px;
   margin: 0 auto;
 }
 
-.profile-section {
+/* Greeting Card */
+.greeting-card {
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
 }
 
-.profile-picture-container {
+.greeting-content {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: var(--spacing-sm);
 }
 
-.profile-picture {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  object-fit: cover;
-  background: white;
+.heart-icon-small {
+  font-size: 28px;
+  display: inline-block;
 }
 
-.profile-name {
-  font-size: var(--font-size-base);
+.greeting-text {
+  font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-semibold);
-  color: white;
-  text-align: center;
-  letter-spacing: 0.5px;
+  color: var(--color-text-primary);
+  margin: 0;
 }
 
-.center-content {
-  flex: 1;
+.header-profile-pic {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-full);
+  object-fit: cover;
+  border: 3px solid var(--color-background);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Stats Card with Gradient */
+.stats-card {
+  background: var(--gradient-blue);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-2xl);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.stats-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-md);
-}
-
-.heart-icon {
-  font-size: 36px;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); }
-}
-
-.days-badge {
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md) var(--spacing-xl);
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  min-width: 140px;
+  position: relative;
+  z-index: 2;
+}
+
+.heart-icon-large {
+  font-size: 48px;
+  margin-bottom: var(--spacing-md);
+  animation: heartBeat 2s ease-in-out infinite;
+}
+
+@keyframes heartBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.stats-info {
+  width: 100%;
+}
+
+.partner-greeting {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.days-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-sm);
 }
 
 .days-number {
-  font-size: var(--font-size-3xl);
-  font-weight: var(--font-weight-semibold);
-  color: white;
+  font-size: 72px;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
   line-height: 1;
-  margin-bottom: 4px;
+  letter-spacing: -2px;
+}
+
+.days-unit {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
 }
 
 .days-label {
-  font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.95);
-  letter-spacing: 0.5px;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
-.timeline-content {
+/* Decorative Circles */
+.stats-decoration {
+  position: absolute;
+  top: 0;
+  right: 0;
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+.decoration-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius-full);
+  background: white;
+  position: absolute;
+}
+
+.decoration-circle:first-child {
+  top: -40px;
+  right: -40px;
+}
+
+.decoration-circle:last-child {
+  top: 20px;
+  right: 80px;
+}
+
+/* Moments Bank Section */
+.moments-bank {
   max-width: 768px;
   margin: 0 auto;
-  padding: var(--spacing-lg);
+  padding: 0 var(--spacing-lg) var(--spacing-xl);
 }
 
+.section-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xl);
+  text-align: left;
+}
+
+/* Year Groups */
 .year-group {
   margin-bottom: var(--spacing-2xl);
 }
 
 .year-label {
-  font-size: var(--font-size-xl);
+  font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
   margin-bottom: var(--spacing-lg);
-  padding-left: var(--spacing-sm);
+  padding-left: var(--spacing-xs);
 }
 
-.memories-list {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
+/* Memories Grid */
+.memories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--spacing-md);
 }
 
-.memory-card {
-  background: white;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
+/* Modern Memory Cards */
+.modern-memory-card {
+  background: var(--color-card);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
 }
 
-.memory-card:active {
-  transform: scale(0.98);
+.modern-memory-card:active {
+  transform: scale(0.97);
   box-shadow: var(--shadow-md);
 }
 
-.memory-image {
+.modern-memory-image {
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 1;
   overflow: hidden;
-  background: var(--color-hover);
+  background: var(--gradient-peach);
 }
 
-.memory-image img {
+.modern-memory-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.memory-content {
-  padding: var(--spacing-lg);
+.modern-memory-content {
+  padding: var(--spacing-md);
 }
 
-.memory-category {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-sm);
-}
-
-.memory-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  margin-bottom: var(--spacing-xs);
-  color: var(--color-text-primary);
-}
-
-.memory-meta {
+.memory-header {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xs);
-  flex-wrap: wrap;
+  justify-content: space-between;
   margin-bottom: var(--spacing-sm);
 }
 
-.memory-date {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
+.memory-emoji {
+  font-size: 20px;
 }
 
-.memory-author {
+.memory-date-short {
   font-size: var(--font-size-sm);
-  color: var(--color-primary);
+  color: var(--color-text-secondary);
   font-weight: var(--font-weight-medium);
 }
 
-.memory-description {
+.modern-memory-title {
   font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
   color: var(--color-text-primary);
-  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--spacing-xs);
+  line-height: var(--line-height-tight);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.memory-author-small {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
 /* Empty State */
@@ -196,9 +262,10 @@
   margin-bottom: var(--spacing-xl);
 }
 
-.empty-state h2 {
+.empty-state h3 {
   font-size: var(--font-size-2xl);
   margin-bottom: var(--spacing-sm);
+  color: var(--color-text-primary);
 }
 
 .empty-state p {
@@ -212,45 +279,80 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--color-background);
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
-  .timeline-content {
-    padding: var(--spacing-md);
+  .modern-header {
+    padding: var(--spacing-lg) var(--spacing-md);
   }
 
-  .memory-content {
-    padding: var(--spacing-md);
+  .greeting-text {
+    font-size: var(--font-size-xl);
   }
 
-  .profile-section {
-    gap: var(--spacing-sm);
+  .heart-icon-small {
+    font-size: 24px;
   }
 
-  .profile-picture {
-    width: 64px;
-    height: 64px;
-    border-width: 3px;
+  .header-profile-pic {
+    width: 48px;
+    height: 48px;
   }
 
-  .profile-name {
-    font-size: var(--font-size-sm);
+  .stats-card {
+    padding: var(--spacing-xl);
   }
 
-  .heart-icon {
-    font-size: 28px;
-  }
-
-  .days-badge {
-    padding: var(--spacing-sm) var(--spacing-md);
-    min-width: 110px;
+  .heart-icon-large {
+    font-size: 40px;
   }
 
   .days-number {
-    font-size: var(--font-size-2xl);
+    font-size: 56px;
   }
 
-  .days-label {
-    font-size: 11px;
+  .days-unit {
+    font-size: var(--font-size-lg);
+  }
+
+  .moments-bank {
+    padding: 0 var(--spacing-md) var(--spacing-xl);
+  }
+
+  .section-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .memories-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: var(--spacing-sm);
+  }
+
+  .modern-memory-content {
+    padding: var(--spacing-sm);
+  }
+}
+
+@media (max-width: 480px) {
+  .greeting-card {
+    padding: var(--spacing-md);
+  }
+
+  .greeting-text {
+    font-size: var(--font-size-lg);
+  }
+
+  .stats-card {
+    padding: var(--spacing-lg);
+  }
+
+  .days-number {
+    font-size: 48px;
+  }
+
+  .memories-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
