@@ -8,6 +8,7 @@ import Timeline from './pages/Timeline';
 import Settings from './pages/Settings';
 import AddMemory from './pages/AddMemory';
 import MemoryDetail from './pages/MemoryDetail';
+import AllMemories from './pages/AllMemories';
 
 function ProtectedRoute({ children }) {
   const [authenticated, setAuthenticated] = useState(null);
@@ -71,6 +72,14 @@ function AppContent() {
         element={
           <ProtectedRoute>
             <Timeline />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/memories"
+        element={
+          <ProtectedRoute>
+            <AllMemories />
           </ProtectedRoute>
         }
       />

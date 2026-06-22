@@ -392,3 +392,21 @@ textarea {
     padding: 16px 18px 18px;
   }
 }
+
+/* Custom form validation styles */
+input.input-error,
+textarea.input-error,
+.input-with-icon.input-error {
+  border-color: #E0556F !important;
+  box-shadow: 0 0 0 4px rgba(224, 85, 111, 0.15) !important;
+}
+
+.shake-element {
+  animation: input-shake 0.4s ease;
+}
+
+@keyframes input-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}

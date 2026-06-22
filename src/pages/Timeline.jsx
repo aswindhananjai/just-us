@@ -147,9 +147,11 @@ export default function Timeline() {
       <div className="memories-section">
         <div className="section-header">
           <h2>Your memories</h2>
-          <button className="see-all-link" onClick={() => navigate('/memories')}>
-            See all
-          </button>
+          {memories.length > 5 && (
+            <button className="see-all-link" onClick={() => navigate('/memories')}>
+              See all
+            </button>
+          )}
         </div>
 
         {memories.length === 0 ? (
@@ -159,52 +161,64 @@ export default function Timeline() {
             <p>Add your first memory to begin building your timeline.</p>
           </div>
         ) : (
-          memories.slice(0, 3).map(memory => {
-            const category = getCategoryInfo(memory.category);
-            return (
-              <div
-                key={memory.id}
-                className={`big-memory-card ${!memory.image_url ? 'no-image' : ''}`}
-                onClick={() => navigate(`/memory/${memory.id}`)}
-              >
-                {memory.image_url
-                  ? <img src={memory.image_url} alt={memory.title} />
-                  : (
-                    <div
-                      className="memory-card-default-bg"
-                      style={{ background: `linear-gradient(145deg, ${category.color} 0%, ${category.color}dd 100%)` }}
-                    >
-                      {/* Scattered emoji pattern — dense, varied sizes & rotations */}
-                      <span style={{ position:'absolute', fontSize:'78px', top:'-14px',  right:'-10px', opacity:0.14, transform:'rotate(20deg)',  lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'46px', top:'14px',   left:'8%',     opacity:0.18, transform:'rotate(-14deg)', lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'30px', top:'50%',    left:'38%',    opacity:0.16, transform:'translateY(-50%) rotate(6deg)',  lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'20px', top:'8px',    right:'28%',   opacity:0.2,  transform:'rotate(-22deg)', lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'55px', bottom:'-10px',left:'48%',  opacity:0.12, transform:'rotate(-8deg)',  lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'24px', bottom:'18px', left:'6%',   opacity:0.2,  transform:'rotate(16deg)',  lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'36px', top:'40%',    right:'5%',   opacity:0.14, transform:'rotate(-18deg)', lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'18px', bottom:'30px', right:'42%', opacity:0.22, transform:'rotate(10deg)',  lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'42px', top:'-8px',   left:'55%',   opacity:0.12, transform:'rotate(-5deg)',  lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'16px', top:'45%',    left:'22%',   opacity:0.18, transform:'rotate(25deg)',  lineHeight:1 }}>{category.emoji}</span>
-                      <span style={{ position:'absolute', fontSize:'26px', bottom:'5px', right:'8%',   opacity:0.15, transform:'rotate(-12deg)', lineHeight:1 }}>{category.emoji}</span>
+          <>
+            {memories.slice(0, 5).map(memory => {
+              const category = getCategoryInfo(memory.category);
+              return (
+                <div
+                  key={memory.id}
+                  className={`big-memory-card ${!memory.image_url ? 'no-image' : ''}`}
+                  onClick={() => navigate(`/memory/${memory.id}`)}
+                >
+                  {memory.image_url
+                    ? <img src={memory.image_url} alt={memory.title} />
+                    : (
+                      <div
+                        className="memory-card-default-bg"
+                        style={{ background: `linear-gradient(145deg, ${category.color} 0%, ${category.color}dd 100%)` }}
+                      >
+                        {/* Scattered emoji pattern — evenly, widely distributed */}
+                        <span style={{ position:'absolute', fontSize:'54px', top:'-5%',    left:'-5%',    opacity:0.15, transform:'rotate(-12deg)', lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'28px', top:'12%',    left:'20%',    opacity:0.18, transform:'rotate(18deg)',  lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'40px', top:'5%',     left:'48%',    opacity:0.12, transform:'rotate(-8deg)',  lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'72px', top:'-10%',   right:'-5%',   opacity:0.14, transform:'rotate(22deg)',  lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'32px', top:'42%',    left:'5%',     opacity:0.2,  transform:'rotate(-15deg)', lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'20px', top:'38%',    left:'30%',    opacity:0.16, transform:'rotate(10deg)',  lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'36px', top:'45%',    left:'58%',    opacity:0.14, transform:'rotate(-20deg)', lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'48px', top:'35%',    right:'10%',   opacity:0.13, transform:'rotate(15deg)',  lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'50px', bottom:'-8%',  left:'12%',    opacity:0.12, transform:'rotate(25deg)',  lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'24px', bottom:'15%', left:'26%',    opacity:0.18, transform:'rotate(-18deg)', lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'30px', bottom:'8%',  left:'45%',    opacity:0.15, transform:'rotate(8deg)',   lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'64px', bottom:'-12%', right:'15%',   opacity:0.11, transform:'rotate(-22deg)', lineHeight:1 }}>{category.emoji}</span>
+                        <span style={{ position:'absolute', fontSize:'22px', bottom:'22%', right:'2%',    opacity:0.2,  transform:'rotate(12deg)',  lineHeight:1 }}>{category.emoji}</span>
+                      </div>
+                    )
+                  }
+                  <div className="memory-gradient-overlay"></div>
+                  {/* Category badge — white pill like design */}
+                  <span className="memory-category-badge">
+                    <span style={{ fontSize: '12px', lineHeight: 1 }}>{category.emoji}</span>
+                    {category.name}
+                  </span>
+                  <div className="memory-card-content">
+                    <div className="memory-card-title">{memory.title}</div>
+                    <div className="memory-card-meta">
+                      {formatDate(memory.date)}
+                      {memory.created_by && <span> · added by {memory.created_by}</span>}
                     </div>
-                  )
-                }
-                <div className="memory-gradient-overlay"></div>
-                {/* Category badge — white pill like design */}
-                <span className="memory-category-badge">
-                  <span style={{ fontSize: '12px', lineHeight: 1 }}>{category.emoji}</span>
-                  {category.name}
-                </span>
-                <div className="memory-card-content">
-                  <div className="memory-card-title">{memory.title}</div>
-                  <div className="memory-card-meta">
-                    {formatDate(memory.date)}
-                    {memory.created_by && <span> · added by {memory.created_by}</span>}
                   </div>
                 </div>
+              );
+            })}
+
+            {memories.length > 5 && (
+              <div className="see-all-button-container">
+                <button className="see-all-button-large" onClick={() => navigate('/memories')}>
+                  See all
+                </button>
               </div>
-            );
-          })
+            )}
+          </>
         )}
       </div>
 

@@ -25,6 +25,8 @@ export default function AddMemory() {
     description: '',
     location: '',
   });
+  const [errors, setErrors] = useState({ title: false, date: false });
+  const [shake, setShake] = useState({ title: false, date: false });
 
   // Load existing memory when editing
   useEffect(() => {
@@ -137,7 +139,11 @@ export default function AddMemory() {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: false }));
+    }
   };
 
   const handleCategoryChange = (categoryId) => {
@@ -147,8 +153,17 @@ export default function AddMemory() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.date) {
-      alert('Please fill in title and date');
+    const hasTitleError = !formData.title.trim();
+    const hasDateError = !formData.date;
+
+    if (hasTitleError || hasDateError) {
+      setErrors({ title: hasTitleError, date: hasDateError });
+      setShake({ title: hasTitleError, date: hasDateError });
+      
+      // Reset shake state after animation ends to allow subsequent shakings
+      setTimeout(() => {
+        setShake({ title: false, date: false });
+      }, 400);
       return;
     }
 
@@ -227,7 +242,7 @@ export default function AddMemory() {
           <h1 className="add-memory-title">{isEditMode ? 'Edit memory' : 'New memory'}</h1>
         </div>
 
-        <form className="add-memory-form" onSubmit={handleSubmit}>
+        <form className="add-memory-form" onSubmit={handleSubmit} noValidate>
           {/* Photos Section */}
           <div className="form-section">
             <div className="section-header">
@@ -248,27 +263,27 @@ export default function AddMemory() {
             <div className="photos-grid">
               {/* Plus button always first */}
               {images.length < 5 && (
-                <label className="photo-add" htmlFor="photo-input">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M12 5v14M5 12h14" />
+                <div className="photo-add" onClick={() => fileInputRef.current?.click()}>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
                   </svg>
-                  <span>Add</span>
+                  <span>Add photo</span>
                   <input
-                    id="photo-input"
-                    ref={fileInputRef}
                     type="file"
-                    accept="image/*"
-                    multiple
+                    ref={fileInputRef}
                     onChange={handleImageAdd}
+                    accept="image/*"
                     style={{ display: 'none' }}
+                    multiple
                   />
-                </label>
+                </div>
               )}
 
-              {/* Uploaded images to the right */}
-              {images.map((image, index) => (
+              {/* Uploaded photo previews */}
+              {images.map((img, index) => (
                 <div
-                  key={image.id || index}
+                  key={img.id}
                   className={`photo-item ${dragIndex === index ? 'dragging' : ''} ${dragOverIndex === index ? 'drag-over' : ''}`}
                   draggable
                   onDragStart={(e) => handleDragStart(e, index)}
@@ -278,7 +293,7 @@ export default function AddMemory() {
                   onTouchStart={(e) => handleTouchStart(e, index)}
                   onTouchEnd={handleTouchEnd}
                 >
-                  <img src={image.preview} alt={`Upload ${index + 1}`} />
+                  <img src={img.preview} alt={`Preview ${index + 1}`} />
                   <button
                     type="button"
                     className="photo-remove"
@@ -323,17 +338,17 @@ export default function AddMemory() {
             <input
               type="text"
               name="title"
+              className={`${errors.title ? 'input-error' : ''} ${shake.title ? 'shake-element' : ''}`}
               value={formData.title}
               onChange={handleChange}
               placeholder="Give this memory a title"
-              required
             />
           </div>
 
           {/* Date */}
           <div className="form-section">
             <div className="form-label">Date</div>
-            <div className="input-with-icon">
+            <div className={`input-with-icon ${errors.date ? 'input-error' : ''} ${shake.date ? 'shake-element' : ''}`}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="4.5" width="18" height="17" rx="3" />
                 <path d="M3 9h18M8 2.5v4M16 2.5v4" />
@@ -343,7 +358,6 @@ export default function AddMemory() {
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
-                required
               />
             </div>
           </div>
