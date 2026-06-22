@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { logout, getCurrentUser } from '../utils/auth';
+import { logout, getCurrentUser, getUserData, updateUserProfilePicture } from '../utils/auth';
 import { uploadImage } from '../utils/cloudinary';
 import BottomNav from '../components/BottomNav';
 import '../styles/Settings.css';
@@ -8,17 +8,19 @@ import '../styles/Settings.css';
 export default function Settings() {
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
-  const [uploading, setUploading] = useState({ aswin: false, anu: false });
+  const [uploading, setUploading] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(`/${currentUser.toLowerCase()}.png`);
 
-  // Get profile pictures from localStorage or use defaults
-  const getProfilePicture = (user) => {
-    return localStorage.getItem(`profile_picture_${user.toLowerCase()}`) || `/${user.toLowerCase()}.png`;
+  useEffect(() => {
+    loadUserData();
+  }, []);
+
+  const loadUserData = async () => {
+    const userData = await getUserData(currentUser);
+    if (userData?.profile_picture_url) {
+      setProfilePicture(userData.profile_picture_url);
+    }
   };
-
-  const [profilePictures, setProfilePictures] = useState({
-    aswin: getProfilePicture('Aswin'),
-    anu: getProfilePicture('Anu'),
-  });
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to lock the app?')) {
@@ -44,28 +46,26 @@ export default function Settings() {
     }
 
     try {
-      setUploading({ ...uploading, [currentUser.toLowerCase()]: true });
+      setUploading(true);
 
+      // Upload to Cloudinary
       const imageUrl = await uploadImage(file);
 
-      // Store in localStorage
-      localStorage.setItem(`profile_picture_${currentUser.toLowerCase()}`, imageUrl);
+      // Update in database
+      const success = await updateUserProfilePicture(currentUser, imageUrl);
 
-      // Update state
-      setProfilePictures({
-        ...profilePictures,
-        [currentUser.toLowerCase()]: imageUrl,
-      });
-
-      alert('Profile picture updated successfully!');
-
-      // Reload the page to update the header
-      window.location.reload();
+      if (success) {
+        // Update local state
+        setProfilePicture(imageUrl);
+        alert('Profile picture updated successfully!');
+      } else {
+        throw new Error('Failed to update database');
+      }
     } catch (error) {
       console.error('Error uploading profile picture:', error);
       alert('Failed to upload profile picture. Please try again.');
     } finally {
-      setUploading({ ...uploading, [currentUser.toLowerCase()]: false });
+      setUploading(false);
     }
   };
 
@@ -75,7 +75,7 @@ export default function Settings() {
       <div className="profile-hero-card">
         <div className="profile-hero-content">
           <div className="profile-hero-image">
-            <img src={profilePictures[currentUser.toLowerCase()]} alt={currentUser} />
+            <img src={profilePicture} alt={currentUser} />
           </div>
           <div className="profile-hero-info">
             <div className="profile-hero-greeting">Your profile</div>
@@ -93,7 +93,7 @@ export default function Settings() {
         <div className="profile-picture-card">
           <div className="profile-picture-header">
             <img
-              src={profilePictures[currentUser.toLowerCase()]}
+              src={profilePicture}
               alt={currentUser}
               className="profile-preview"
             />
@@ -107,10 +107,10 @@ export default function Settings() {
               type="file"
               accept="image/*"
               onChange={handleProfilePictureUpload}
-              disabled={uploading[currentUser.toLowerCase()]}
+              disabled={uploading}
               style={{ display: 'none' }}
             />
-            {uploading[currentUser.toLowerCase()] ? 'Uploading...' : 'Change Picture'}
+            {uploading ? 'Uploading...' : 'Change Picture'}
           </label>
         </div>
 
@@ -130,7 +130,10 @@ export default function Settings() {
       <div className="bottom-nav-settings">
         <button className="nav-item-settings inactive" onClick={() => navigate('/')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 21s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.6 4.5 4.5 0 0 1 19.5 11c0 5.4-7.5 10-7.5 10Z" />
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
           </svg>
           <span>Memories</span>
         </button>

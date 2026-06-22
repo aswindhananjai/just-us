@@ -1,22 +1,91 @@
-import CryptoJS from 'crypto-js';
-
-// Hardcoded passcodes for Aswin and Anu
-const ASWIN_PASSCODE = '140297';
-const ANU_PASSCODE = '010195';
+import { supabase } from './supabase';
 
 const CURRENT_USER_KEY = 'justus_current_user';
+const USERS_CACHE_KEY = 'justus_users_cache';
+const CACHE_EXPIRY_KEY = 'justus_users_cache_expiry';
+const CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 
-export const hashPasscode = (passcode) => {
-  return CryptoJS.SHA256(passcode).toString();
-};
+// Cache users in localStorage to avoid repeated DB calls
+const getCachedUsers = () => {
+  const cached = localStorage.getItem(USERS_CACHE_KEY);
+  const expiry = localStorage.getItem(CACHE_EXPIRY_KEY);
 
-export const verifyPasscode = (passcode) => {
-  if (passcode === ASWIN_PASSCODE) {
-    return 'Aswin';
-  } else if (passcode === ANU_PASSCODE) {
-    return 'Anu';
+  if (cached && expiry && Date.now() < parseInt(expiry)) {
+    return JSON.parse(cached);
   }
   return null;
+};
+
+const setCachedUsers = (users) => {
+  localStorage.setItem(USERS_CACHE_KEY, JSON.stringify(users));
+  localStorage.setItem(CACHE_EXPIRY_KEY, (Date.now() + CACHE_DURATION).toString());
+};
+
+// Fetch all users from database
+export const fetchUsers = async () => {
+  try {
+    // Check cache first
+    const cached = getCachedUsers();
+    if (cached) return cached;
+
+    // Fetch from database
+    const { data, error } = await supabase
+      .from('users')
+      .select('*');
+
+    if (error) throw error;
+
+    // Cache the results
+    setCachedUsers(data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    return [];
+  }
+};
+
+// Verify passcode against database
+export const verifyPasscode = async (passcode) => {
+  try {
+    const users = await fetchUsers();
+    const user = users.find(u => u.passcode === passcode);
+    return user ? user.name : null;
+  } catch (error) {
+    console.error('Error verifying passcode:', error);
+    return null;
+  }
+};
+
+// Get user data by name
+export const getUserData = async (userName) => {
+  try {
+    const users = await fetchUsers();
+    return users.find(u => u.name === userName) || null;
+  } catch (error) {
+    console.error('Error getting user data:', error);
+    return null;
+  }
+};
+
+// Update user profile picture in database
+export const updateUserProfilePicture = async (userName, imageUrl) => {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .update({ profile_picture_url: imageUrl, updated_at: new Date() })
+      .eq('name', userName);
+
+    if (error) throw error;
+
+    // Clear cache to force refresh
+    localStorage.removeItem(USERS_CACHE_KEY);
+    localStorage.removeItem(CACHE_EXPIRY_KEY);
+
+    return true;
+  } catch (error) {
+    console.error('Error updating profile picture:', error);
+    return false;
+  }
 };
 
 export const isAuthenticated = () => {

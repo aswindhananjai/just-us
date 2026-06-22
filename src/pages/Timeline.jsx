@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { MEMORY_CATEGORIES } from '../utils/constants';
-import { getCurrentUser } from '../utils/auth';
+import { getCurrentUser, getUserData } from '../utils/auth';
 import BottomNav from '../components/BottomNav';
 import FloatingActionButton from '../components/FloatingActionButton';
 import '../styles/Timeline.css';
@@ -11,16 +11,16 @@ export default function Timeline() {
   const [memories, setMemories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [groupedMemories, setGroupedMemories] = useState({});
+  const [relationshipStartDate, setRelationshipStartDate] = useState('2026-05-21');
+  const [profilePictures, setProfilePictures] = useState({});
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
 
-  // Hardcoded relationship data
-  const RELATIONSHIP_START_DATE = '2026-05-21';
   const partnerName = currentUser === 'Aswin' ? 'Anu' : 'Aswin';
 
-  // Get profile pictures from localStorage or use defaults
+  // Get profile picture from state
   const getProfilePicture = (user) => {
-    return localStorage.getItem(`profile_picture_${user.toLowerCase()}`) || `/${user.toLowerCase()}.png`;
+    return profilePictures[user] || `/${user.toLowerCase()}.png`;
   };
 
   useEffect(() => {
@@ -29,6 +29,7 @@ export default function Timeline() {
 
   const fetchData = async () => {
     try {
+      // Fetch memories
       const { data, error } = await supabase
         .from('memories')
         .select('*')
@@ -47,6 +48,27 @@ export default function Timeline() {
       }, {});
 
       setGroupedMemories(grouped);
+
+      // Fetch relationship start date
+      const { data: configData } = await supabase
+        .from('relationship_config')
+        .select('start_date')
+        .single();
+
+      if (configData) {
+        setRelationshipStartDate(configData.start_date);
+      }
+
+      // Fetch profile pictures from users table
+      const [currentUserData, partnerData] = await Promise.all([
+        getUserData(currentUser),
+        getUserData(partnerName)
+      ]);
+
+      setProfilePictures({
+        [currentUser]: currentUserData?.profile_picture_url || `/${currentUser.toLowerCase()}.png`,
+        [partnerName]: partnerData?.profile_picture_url || `/${partnerName.toLowerCase()}.png`
+      });
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -59,11 +81,16 @@ export default function Timeline() {
   };
 
   const calculateDaysTogether = () => {
-    const start = new Date(RELATIONSHIP_START_DATE);
+    const start = new Date(relationshipStartDate);
     const today = new Date();
     const diffTime = Math.abs(today - start);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
+  };
+
+  const formatRelationshipDate = () => {
+    const date = new Date(relationshipStartDate);
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
   const formatDate = (dateString) => {
@@ -112,7 +139,7 @@ export default function Timeline() {
         <div className="days-counter">
           <div className="days-number-large">{calculateDaysTogether()}</div>
           <div className="days-label-upper">days together</div>
-          <div className="relationship-meta">{partnerName} & {currentUser} · since 21 May 2024</div>
+          <div className="relationship-meta">{partnerName} & {currentUser} · since {formatRelationshipDate()}</div>
         </div>
       </div>
 
@@ -165,7 +192,10 @@ export default function Timeline() {
       <div className="bottom-nav-timeline">
         <button className="nav-item-timeline active" onClick={() => navigate('/')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 21s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.6 4.5 4.5 0 0 1 19.5 11c0 5.4-7.5 10-7.5 10Z" />
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
           </svg>
           <span>Memories</span>
         </button>

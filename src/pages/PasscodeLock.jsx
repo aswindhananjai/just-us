@@ -25,8 +25,8 @@ export default function PasscodeLock() {
     }
   }, [passcode]);
 
-  const handlePasscodeEntry = () => {
-    const userName = verifyPasscode(passcode);
+  const handlePasscodeEntry = async () => {
+    const userName = await verifyPasscode(passcode);
 
     if (userName) {
       setAuthenticated(true, userName);
