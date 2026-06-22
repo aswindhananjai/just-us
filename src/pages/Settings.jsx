@@ -1,16 +1,68 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { logout, getCurrentUser } from '../utils/auth';
+import { uploadImage } from '../utils/cloudinary';
 import BottomNav from '../components/BottomNav';
 import '../styles/Settings.css';
 
 export default function Settings() {
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
+  const [uploading, setUploading] = useState({ aswin: false, anu: false });
+
+  // Get profile pictures from localStorage or use defaults
+  const getProfilePicture = (user) => {
+    return localStorage.getItem(`profile_picture_${user.toLowerCase()}`) || `/${user.toLowerCase()}.png`;
+  };
+
+  const [profilePictures, setProfilePictures] = useState({
+    aswin: getProfilePicture('Aswin'),
+    anu: getProfilePicture('Anu'),
+  });
 
   const handleLogout = () => {
     if (window.confirm('Are you sure you want to lock the app?')) {
       logout();
       navigate('/lock');
+    }
+  };
+
+  const handleProfilePictureUpload = async (user, event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size should be less than 5MB');
+      return;
+    }
+
+    try {
+      setUploading({ ...uploading, [user.toLowerCase()]: true });
+
+      const imageUrl = await uploadImage(file);
+
+      // Store in localStorage
+      localStorage.setItem(`profile_picture_${user.toLowerCase()}`, imageUrl);
+
+      // Update state
+      setProfilePictures({
+        ...profilePictures,
+        [user.toLowerCase()]: imageUrl,
+      });
+
+      alert(`${user}'s profile picture updated successfully!`);
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      alert('Failed to upload profile picture. Please try again.');
+    } finally {
+      setUploading({ ...uploading, [user.toLowerCase()]: false });
     }
   };
 
@@ -25,6 +77,65 @@ export default function Settings() {
           <div className="info-card">
             <h3>Logged in as</h3>
             <p className="current-user">{currentUser}</p>
+          </div>
+        </div>
+
+        {/* Profile Pictures Section */}
+        <div className="profile-pictures-section">
+          <h2 className="section-title">Profile Pictures</h2>
+
+          {/* Aswin's Profile Picture */}
+          <div className="profile-picture-card">
+            <div className="profile-picture-header">
+              <div className="profile-info">
+                <img
+                  src={profilePictures.aswin}
+                  alt="Aswin"
+                  className="profile-preview"
+                />
+                <div>
+                  <h3>Aswin's Picture</h3>
+                  <p className="profile-hint">Square images work best</p>
+                </div>
+              </div>
+            </div>
+            <label className="upload-btn">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleProfilePictureUpload('Aswin', e)}
+                disabled={uploading.aswin}
+                style={{ display: 'none' }}
+              />
+              {uploading.aswin ? 'Uploading...' : 'Change Picture'}
+            </label>
+          </div>
+
+          {/* Anu's Profile Picture */}
+          <div className="profile-picture-card">
+            <div className="profile-picture-header">
+              <div className="profile-info">
+                <img
+                  src={profilePictures.anu}
+                  alt="Anu"
+                  className="profile-preview"
+                />
+                <div>
+                  <h3>Anu's Picture</h3>
+                  <p className="profile-hint">Square images work best</p>
+                </div>
+              </div>
+            </div>
+            <label className="upload-btn">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleProfilePictureUpload('Anu', e)}
+                disabled={uploading.anu}
+                style={{ display: 'none' }}
+              />
+              {uploading.anu ? 'Uploading...' : 'Change Picture'}
+            </label>
           </div>
         </div>
 

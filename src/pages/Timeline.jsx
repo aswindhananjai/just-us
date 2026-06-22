@@ -15,6 +15,11 @@ export default function Timeline() {
   // Hardcoded relationship data
   const RELATIONSHIP_START_DATE = '2026-05-21';
 
+  // Get profile pictures from localStorage or use defaults
+  const getProfilePicture = (user) => {
+    return localStorage.getItem(`profile_picture_${user.toLowerCase()}`) || `/${user.toLowerCase()}.png`;
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -80,7 +85,7 @@ export default function Timeline() {
         <div className="header-content">
           <div className="profile-section">
             <div className="profile-picture-container">
-              <img src="/aswin.png" alt="Aswin" className="profile-picture" />
+              <img src={getProfilePicture('Aswin')} alt="Aswin" className="profile-picture" />
               <div className="profile-name">Aswin</div>
             </div>
 
@@ -93,7 +98,7 @@ export default function Timeline() {
             </div>
 
             <div className="profile-picture-container">
-              <img src="/anu.png" alt="Anu" className="profile-picture" />
+              <img src={getProfilePicture('Anu')} alt="Anu" className="profile-picture" />
               <div className="profile-name">Anu</div>
             </div>
           </div>
