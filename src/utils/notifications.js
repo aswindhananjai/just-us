@@ -65,6 +65,13 @@ async function getFCMToken() {
   } catch (error) {
     console.error('[FCM] Error getting FCM token:', error);
     console.error('[FCM] Error details:', error.message, error.code);
+
+    // Provide helpful error messages for common issues
+    if (error.code === 'messaging/failed-service-worker-registration') {
+      console.error('[FCM] Service worker registration failed. This is common on localhost with SSL issues.');
+      console.error('[FCM] Try testing on the production Vercel deployment instead: https://just-us-seven-theta.vercel.app');
+    }
+
     return null;
   }
 }
