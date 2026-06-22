@@ -198,6 +198,78 @@
   background: var(--color-background-lighter);
 }
 
+/* Notification Status Card */
+.notification-status-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 5px 14px rgba(20, 35, 59, 0.05);
+}
+
+.notification-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+}
+
+.notification-status-row:not(:last-child) {
+  border-bottom: 1px solid var(--color-border-lighter);
+}
+
+.notification-status-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.notification-status-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 10px;
+}
+
+.notification-status-badge.enabled {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.notification-status-badge.disabled {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.enable-notifications-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+  padding: 12px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.enable-notifications-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  background: #2558B8;
+}
+
+.enable-notifications-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* App Footer */
 .app-footer {
   text-align: center;

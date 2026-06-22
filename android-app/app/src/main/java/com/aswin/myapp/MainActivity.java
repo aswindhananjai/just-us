@@ -87,10 +87,17 @@ public class MainActivity extends Activity {
 
     private void requestNecessaryPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String[] permissions = {
-                Manifest.permission.CAMERA,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            };
+            // Build permissions list based on Android version
+            java.util.ArrayList<String> permissionsList = new java.util.ArrayList<>();
+            permissionsList.add(Manifest.permission.CAMERA);
+            permissionsList.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+
+            // Add notification permission for Android 13+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                permissionsList.add(Manifest.permission.POST_NOTIFICATIONS);
+            }
+
+            String[] permissions = permissionsList.toArray(new String[0]);
 
             boolean allGranted = true;
             for (String permission : permissions) {

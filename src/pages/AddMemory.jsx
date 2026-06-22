@@ -5,6 +5,7 @@ import { uploadImage } from '../utils/cloudinary';
 import { getCurrentUser } from '../utils/auth';
 import { MEMORY_CATEGORIES } from '../utils/constants';
 import { sendMemoryAddedNotification } from '../utils/notifications';
+import { useKeyboardScroll } from '../hooks/useKeyboardScroll';
 import '../styles/AddMemory.css';
 
 export default function AddMemory() {
@@ -27,6 +28,9 @@ export default function AddMemory() {
   });
   const [errors, setErrors] = useState({ title: false, date: false });
   const [shake, setShake] = useState({ title: false, date: false });
+
+  // Enable keyboard scroll adjustment
+  useKeyboardScroll();
 
   // Load existing memory when editing
   useEffect(() => {

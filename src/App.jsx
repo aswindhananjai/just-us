@@ -10,6 +10,7 @@ import Settings from './pages/Settings';
 import AddMemory from './pages/AddMemory';
 import MemoryDetail from './pages/MemoryDetail';
 import AllMemories from './pages/AllMemories';
+import DebugFCM from './pages/DebugFCM';
 
 function ProtectedRoute({ children }) {
   const [authenticated, setAuthenticated] = useState(null);
@@ -40,16 +41,12 @@ function AppContent() {
   const [isLocked, setIsLocked] = useState(!isAuthenticated());
 
   useEffect(() => {
-    // Request notification permission when user is authenticated
+    // Setup notification listener when user is authenticated
     if (isAuthenticated()) {
-      // Request permission after a short delay to not overwhelm on first load
+      // Setup foreground message listener
       const timer = setTimeout(() => {
-        // Check if running in Android WebView
-        if (window.Android && typeof window.Android.requestNotificationPermission === 'function') {
-          // Use native Android permission request
-          window.Android.requestNotificationPermission();
-        } else {
-          // Use web-based notification request for browsers
+        // Only request permission for web browsers (not Android)
+        if (!window.Android) {
           requestNotificationPermission();
         }
         setupForegroundMessageListener();
@@ -146,6 +143,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <AddMemory />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/debug-fcm"
+          element={
+            <ProtectedRoute>
+              <DebugFCM />
             </ProtectedRoute>
           }
         />

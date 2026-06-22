@@ -10,29 +10,36 @@ const VAPID_KEY = import.meta.env.VITE_FIREBASE_VAPID_KEY || 'YOUR_VAPID_KEY';
  * Request notification permission and get FCM token
  */
 export async function requestNotificationPermission() {
+  console.log('[FCM] requestNotificationPermission called');
+  console.log('[FCM] Messaging available:', !!messaging);
+  console.log('[FCM] Current permission:', Notification.permission);
+
   if (!messaging) {
-    console.warn('Messaging not supported in this browser');
+    console.warn('[FCM] Messaging not supported in this browser');
     return null;
   }
 
   try {
     // Check if notification permission is already granted
     if (Notification.permission === 'granted') {
+      console.log('[FCM] Permission already granted, getting token');
       return await getFCMToken();
     }
 
     // Request permission
+    console.log('[FCM] Requesting permission...');
     const permission = await Notification.requestPermission();
+    console.log('[FCM] Permission result:', permission);
 
     if (permission === 'granted') {
-      console.log('Notification permission granted');
+      console.log('[FCM] Notification permission granted, getting token');
       return await getFCMToken();
     } else {
-      console.log('Notification permission denied');
+      console.log('[FCM] Notification permission denied');
       return null;
     }
   } catch (error) {
-    console.error('Error requesting notification permission:', error);
+    console.error('[FCM] Error requesting notification permission:', error);
     return null;
   }
 }
@@ -42,20 +49,22 @@ export async function requestNotificationPermission() {
  */
 async function getFCMToken() {
   try {
+    console.log('[FCM] Getting token with VAPID key:', VAPID_KEY.substring(0, 20) + '...');
     const token = await getToken(messaging, {
       vapidKey: VAPID_KEY
     });
 
     if (token) {
-      console.log('FCM Token obtained:', token);
+      console.log('[FCM] Token obtained:', token.substring(0, 30) + '...');
       await saveFCMToken(token);
       return token;
     } else {
-      console.log('No registration token available');
+      console.log('[FCM] No registration token available');
       return null;
     }
   } catch (error) {
-    console.error('Error getting FCM token:', error);
+    console.error('[FCM] Error getting FCM token:', error);
+    console.error('[FCM] Error details:', error.message, error.code);
     return null;
   }
 }
@@ -66,20 +75,27 @@ async function getFCMToken() {
 async function saveFCMToken(token) {
   try {
     const currentUser = getCurrentUser();
-    if (!currentUser) return;
+    console.log('[FCM] Current user:', currentUser);
+    console.log('[FCM] Token to save:', token);
 
-    const { error } = await supabase
+    if (!currentUser) {
+      console.error('[FCM] No current user found');
+      return;
+    }
+
+    const { data, error } = await supabase
       .from('users')
       .update({ fcm_token: token })
-      .eq('name', currentUser);
+      .eq('name', currentUser)
+      .select();
 
     if (error) {
-      console.error('Error saving FCM token:', error);
+      console.error('[FCM] Error saving FCM token:', error);
     } else {
-      console.log('FCM token saved successfully');
+      console.log('[FCM] Token saved successfully. Updated rows:', data);
     }
   } catch (error) {
-    console.error('Error in saveFCMToken:', error);
+    console.error('[FCM] Error in saveFCMToken:', error);
   }
 }
 
