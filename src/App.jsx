@@ -44,7 +44,14 @@ function AppContent() {
     if (isAuthenticated()) {
       // Request permission after a short delay to not overwhelm on first load
       const timer = setTimeout(() => {
-        requestNotificationPermission();
+        // Check if running in Android WebView
+        if (window.Android && typeof window.Android.requestNotificationPermission === 'function') {
+          // Use native Android permission request
+          window.Android.requestNotificationPermission();
+        } else {
+          // Use web-based notification request for browsers
+          requestNotificationPermission();
+        }
         setupForegroundMessageListener();
       }, 2000);
 
