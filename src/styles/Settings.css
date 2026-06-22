@@ -14,10 +14,51 @@
   font-weight: var(--font-weight-semibold);
 }
 
-.settings-form {
+.settings-content {
   max-width: 768px;
   margin: 0 auto;
   padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.settings-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-2xl);
+}
+
+.info-card {
+  background: white;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+}
+
+.info-card h3 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.info-card p {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.current-user {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.info-detail {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-regular);
+  margin-top: var(--spacing-xs);
 }
 
 .settings-actions {
@@ -58,7 +99,7 @@
 }
 
 @media (max-width: 768px) {
-  .settings-form,
+  .settings-content,
   .settings-actions {
     padding-left: var(--spacing-md);
     padding-right: var(--spacing-md);

@@ -8,10 +8,12 @@ import '../styles/Timeline.css';
 
 export default function Timeline() {
   const [memories, setMemories] = useState([]);
-  const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
   const [groupedMemories, setGroupedMemories] = useState({});
   const navigate = useNavigate();
+
+  // Hardcoded relationship data
+  const RELATIONSHIP_START_DATE = '2026-05-21';
 
   useEffect(() => {
     fetchData();
@@ -19,19 +21,17 @@ export default function Timeline() {
 
   const fetchData = async () => {
     try {
-      const [memoriesResult, settingsResult] = await Promise.all([
-        supabase.from('memories').select('*').order('date', { ascending: false }),
-        supabase.from('settings').select('*').single()
-      ]);
+      const { data, error } = await supabase
+        .from('memories')
+        .select('*')
+        .order('date', { ascending: false });
 
-      if (memoriesResult.error) throw memoriesResult.error;
-      if (settingsResult.error) throw settingsResult.error;
+      if (error) throw error;
 
-      setMemories(memoriesResult.data || []);
-      setSettings(settingsResult.data);
+      setMemories(data || []);
 
       // Group memories by year
-      const grouped = (memoriesResult.data || []).reduce((acc, memory) => {
+      const grouped = (data || []).reduce((acc, memory) => {
         const year = new Date(memory.date).getFullYear();
         if (!acc[year]) acc[year] = [];
         acc[year].push(memory);
@@ -51,8 +51,7 @@ export default function Timeline() {
   };
 
   const calculateDaysTogether = () => {
-    if (!settings?.relationship_start_date) return 0;
-    const start = new Date(settings.relationship_start_date);
+    const start = new Date(RELATIONSHIP_START_DATE);
     const today = new Date();
     const diffTime = Math.abs(today - start);
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -78,9 +77,7 @@ export default function Timeline() {
     <div className="timeline-page">
       {/* Header */}
       <header className="timeline-header">
-        <h1 className="relationship-names">
-          {settings?.partner_one_name || 'Aswin'} & {settings?.partner_two_name || 'Anu'}
-        </h1>
+        <h1 className="relationship-names">Aswin & Anu</h1>
         <p className="days-together">{calculateDaysTogether()} Days Together</p>
       </header>
 
