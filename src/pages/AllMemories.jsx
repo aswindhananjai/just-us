@@ -1,479 +1,384 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
-import { MEMORY_CATEGORIES } from '../utils/constants';
 import '../styles/AllMemories.css';
 
+const MEMORY_CATEGORIES = [
+  {
+    id: 'first',
+    name: 'First',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" /></svg>,
+    color: '#C2487A',
+    bg: '#FCE9F0'
+  },
+  {
+    id: 'trip',
+    name: 'Trip',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></svg>,
+    color: '#2D6FE0',
+    bg: '#EAF1FC'
+  },
+  {
+    id: 'gift',
+    name: 'Gift',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="8" width="18" height="4" rx="1" /><path d="M12 8v13" /><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7" /><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.5 4.5 0 0 1 12 7.5a4.5 4.5 0 0 1 4.5-4.5 2.5 2.5 0 0 1 0 5" /></svg>,
+    color: '#B5762A',
+    bg: '#FBF0DF'
+  },
+  {
+    id: 'moment',
+    name: 'Moment',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg>,
+    color: '#4A5568',
+    bg: '#E8EAF0'
+  },
+  {
+    id: 'celebration',
+    name: 'Celebration',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5.8 11.3 2 22l10.7-3.79" /><path d="M4 3h.01" /><path d="M22 8h.01" /><path d="M15 2h.01" /><path d="M22 20h.01" /><path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10" /><path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17" /><path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7" /><path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2z" /></svg>,
+    color: '#7C3AED',
+    bg: '#F3E8FF'
+  },
+  {
+    id: 'special_day',
+    name: 'Special Day',
+    icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg>,
+    color: '#B7791F',
+    bg: '#FFF8E0'
+  }
+];
+
 export default function AllMemories() {
-  const [memories, setMemories] = useState([]);
-  const [initialLoading, setInitialLoading] = useState(true);
-  const [filtering, setFiltering] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(() => {
-    return localStorage.getItem('all_memories_filter') || 'all';
-  });
-  const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [fetchingMore, setFetchingMore] = useState(false);
-  const [totalCount, setTotalCount] = useState(0);
-  const [yearSpan, setYearSpan] = useState(0);
-
-  // Custom draggable scroll handle states & refs
-  const [activeYear, setActiveYear] = useState('');
-  const [isDragging, setIsDragging] = useState(false);
-  const [draggedYear, setDraggedYear] = useState('');
-  const [scrollPercentage, setScrollPercentage] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
-
-  const trackRef = useRef(null);
-  const isDraggingRef = useRef(false);
-  
   const navigate = useNavigate();
+  const [memories, setMemories] = useState([]);
+  const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const scrollContainerRef = useRef(null);
+  const [activeYear, setActiveYear] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [handlePosition, setHandlePosition] = useState(0);
+  const scrubberRef = useRef(null);
 
-  // Group current memories by year (descending)
-  const grouped = memories.reduce((acc, memory) => {
-    const year = new Date(memory.date).getFullYear();
-    if (!acc[year]) acc[year] = [];
-    acc[year].push(memory);
-    return acc;
-  }, {});
-
-  const sortedYears = Object.keys(grouped).sort((a, b) => b - a);
-
-  // Track active year and scroll percentage on normal page scroll
   useEffect(() => {
-    if (initialLoading || filtering || sortedYears.length === 0) return;
-
-    const handlePageScroll = () => {
-      // 1. Update active year based on visible year groups
-      let currentActive = sortedYears[0] || '';
-      for (const year of sortedYears) {
-        const el = document.getElementById(`year-group-${year}`);
-        if (el) {
-          const rect = el.getBoundingClientRect();
-          if (rect.top <= 250) {
-            currentActive = year;
-          }
-        }
-      }
-      setActiveYear(currentActive);
-
-      // 2. Sync scroll handle position if not currently dragging
-      if (!isDraggingRef.current) {
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const pct = scrollHeight > 0 ? scrollTop / scrollHeight : 0;
-        setScrollPercentage(pct);
-      }
-    };
-
-    window.addEventListener('scroll', handlePageScroll);
-    handlePageScroll(); // run once initially
-
-    return () => window.removeEventListener('scroll', handlePageScroll);
-  }, [sortedYears, initialLoading, filtering]);
-
-  const handlePointerDown = (e) => {
-    e.preventDefault();
-    isDraggingRef.current = true;
-    setIsDragging(true);
-    e.currentTarget.setPointerCapture(e.pointerId);
-
-    // Position the handle immediately to the click point on the track
-    if (trackRef.current) {
-      const rect = trackRef.current.getBoundingClientRect();
-      let y = e.clientY - rect.top;
-      let pct = y / rect.height;
-      if (pct < 0) pct = 0;
-      if (pct > 1) pct = 1;
-
-      setScrollPercentage(pct);
-
-      if (sortedYears.length > 0) {
-        const idx = Math.min(
-          Math.max(Math.round(pct * (sortedYears.length - 1)), 0),
-          sortedYears.length - 1
-        );
-        const targetYear = sortedYears[idx];
-        setDraggedYear(targetYear);
-        setActiveYear(targetYear);
-
-        const targetEl = document.getElementById(`year-group-${targetYear}`);
-        if (targetEl) {
-          targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-        }
-      }
-    }
-  };
-
-  const handlePointerMove = (e) => {
-    if (!isDraggingRef.current || !trackRef.current) return;
-
-    const rect = trackRef.current.getBoundingClientRect();
-    let y = e.clientY - rect.top;
-    let pct = y / rect.height;
-    if (pct < 0) pct = 0;
-    if (pct > 1) pct = 1;
-
-    setScrollPercentage(pct);
-
-    if (sortedYears.length > 0) {
-      const idx = Math.min(
-        Math.max(Math.round(pct * (sortedYears.length - 1)), 0),
-        sortedYears.length - 1
-      );
-      const targetYear = sortedYears[idx];
-      setDraggedYear(targetYear);
-      setActiveYear(targetYear);
-
-      const targetEl = document.getElementById(`year-group-${targetYear}`);
-      if (targetEl) {
-        targetEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-      }
-    }
-  };
-
-  const handlePointerUp = (e) => {
-    if (isDraggingRef.current) {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-      isDraggingRef.current = false;
-      setIsDragging(false);
-    }
-  };
-
-  // Load stats and initial list of memories on mount
-  useEffect(() => {
-    const loadInitialData = async () => {
-      await Promise.all([
-        fetchStats(selectedCategory),
-        fetchMemories(0, selectedCategory, true)
-      ]);
-      setInitialLoading(false);
-    };
-    loadInitialData();
+    loadMemories();
   }, []);
 
-  // Fetch count and year span dynamically from supabase
-  const fetchStats = async (category) => {
+  const loadMemories = async () => {
     try {
-      let query = supabase.from('memories').select('date');
-      if (category !== 'all') {
-        query = query.eq('category', category);
-      }
-      const { data, error } = await query;
-      if (error) throw error;
-      
-      const count = data ? data.length : 0;
-      setTotalCount(count);
-
-      if (count > 0) {
-        const years = data.map(d => new Date(d.date).getFullYear());
-        const minYear = Math.min(...years);
-        const maxYear = Math.max(...years);
-        setYearSpan(maxYear - minYear + 1);
-      } else {
-        setYearSpan(0);
-      }
-    } catch (err) {
-      console.error('Error fetching stats:', err);
-    }
-  };
-
-  // Fetch memories for a specific page and category
-  const fetchMemories = async (pageNumber, category, isInitial = false) => {
-    if (!isInitial) {
-      setFetchingMore(true);
-    }
-    
-    try {
-      const from = pageNumber * 20;
-      const to = (pageNumber + 1) * 20 - 1;
-      
-      let query = supabase
+      setLoading(true);
+      const { data, error } = await supabase
         .from('memories')
         .select('*')
         .order('date', { ascending: false });
 
-      if (category !== 'all') {
-        query = query.eq('category', category);
-      }
-
-      const { data, error } = await query.range(from, to);
-
       if (error) throw error;
-      
-      const newItems = data || [];
-      
-      if (isInitial) {
-        setMemories(newItems);
-      } else {
-        setMemories(prev => {
-          // Prevent duplicates by checking ID
-          const existingIds = new Set(prev.map(item => item.id));
-          const filteredNew = newItems.filter(item => !existingIds.has(item.id));
-          return [...prev, ...filteredNew];
-        });
-      }
-      
-      // If we got fewer than 20 items, there are no more pages
-      setHasMore(newItems.length === 20);
-    } catch (err) {
-      console.error('Error fetching memories:', err);
+      setMemories(data || []);
+    } catch (error) {
+      console.error('Error loading memories:', error);
     } finally {
-      setFetchingMore(false);
+      setLoading(false);
     }
   };
 
-  // Handle scroll to bottom for infinite loading
+  // Group memories by year
+  const groupedMemories = memories.reduce((acc, memory) => {
+    const year = new Date(memory.date).getFullYear();
+    if (!acc[year]) {
+      acc[year] = [];
+    }
+    acc[year].push(memory);
+    return acc;
+  }, {});
+
+  // Filter memories by category
+  const filteredMemories = filter === 'all'
+    ? groupedMemories
+    : Object.entries(groupedMemories).reduce((acc, [year, mems]) => {
+        const filtered = mems.filter(m => m.category === filter);
+        if (filtered.length > 0) {
+          acc[year] = filtered;
+        }
+        return acc;
+      }, {});
+
+  const years = Object.keys(filteredMemories).sort((a, b) => b - a);
+  const totalMemories = Object.values(filteredMemories).flat().length;
+  const totalYears = years.length;
+
+  // Get category styling
+  const getCategoryStyle = (category) => {
+    const cat = MEMORY_CATEGORIES.find(c => c.id === category);
+    return cat || {
+      icon: <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /></svg>,
+      name: category,
+      color: '#2D6FE0',
+      bg: '#EAF1FC'
+    };
+  };
+
+  // Get current year for preview
+  const getPreviewText = () => {
+    if (!activeYear || years.length === 0) return '';
+    return activeYear.toString();
+  };
+
+  // Handle year scrubber click
+  const scrollToYear = (year) => {
+    const element = document.getElementById(`year-${year}`);
+    if (element && scrollContainerRef.current) {
+      const container = scrollContainerRef.current;
+      const elementTop = element.offsetTop;
+      const offset = 120; // Account for sticky header
+
+      container.scrollTo({
+        top: elementTop - offset,
+        behavior: 'smooth'
+      });
+    }
+  };
+
+  // Track active year on scroll and update handle position
   useEffect(() => {
     const handleScroll = () => {
-      if (initialLoading || filtering || fetchingMore || !hasMore) return;
-      
-      // Trigger when user scrolls within 150px of the bottom
-      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 150) {
-        const nextPage = page + 1;
-        setPage(nextPage);
-        fetchMemories(nextPage, selectedCategory, false);
+      if (!scrollContainerRef.current || isDragging) return;
+
+      const scrollTop = scrollContainerRef.current.scrollTop;
+      const scrollHeight = scrollContainerRef.current.scrollHeight - scrollContainerRef.current.clientHeight;
+      let currentYear = null;
+      let currentYearIndex = 0;
+
+      years.forEach((year, index) => {
+        const element = document.getElementById(`year-${year}`);
+        if (element) {
+          const elementTop = element.offsetTop - 150;
+          if (scrollTop >= elementTop) {
+            currentYear = year;
+            currentYearIndex = index;
+          }
+        }
+      });
+
+      if (currentYear !== activeYear) {
+        setActiveYear(currentYear);
+      }
+
+      // Update handle position based on scroll
+      if (years.length > 1 && scrollHeight > 0) {
+        const percentage = (currentYearIndex / (years.length - 1)) * 100;
+        setHandlePosition(percentage);
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [page, selectedCategory, initialLoading, filtering, fetchingMore, hasMore]);
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      handleScroll(); // Set initial active year
+    }
 
-  const handleCategoryChange = async (category) => {
-    setSelectedCategory(category);
-    localStorage.setItem('all_memories_filter', category);
-    setPage(0);
-    setHasMore(true);
-    setFiltering(true);
-    
-    // Reset list and reload stats + memories
-    await Promise.all([
-      fetchStats(category),
-      fetchMemories(0, category, true)
-    ]);
-    setFiltering(false);
-  };
-
-  const getCategoryInfo = (categoryId) => {
-    return MEMORY_CATEGORIES.find(c => c.id === categoryId) || MEMORY_CATEGORIES[0];
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-  };
-
-  const getYearAbbr = (yearStr) => {
-    return `'${yearStr.toString().slice(-2)}`;
-  };
-
-  const getFirstImageUrl = (imageUrlString) => {
-    if (!imageUrlString) return null;
-    try {
-      if (imageUrlString.startsWith('[')) {
-        const arr = JSON.parse(imageUrlString);
-        return arr.length > 0 ? arr[0] : null;
+    return () => {
+      if (container) {
+        container.removeEventListener('scroll', handleScroll);
       }
-      return imageUrlString;
-    } catch (e) {
-      return imageUrlString;
+    };
+  }, [years, activeYear, isDragging]);
+
+  // Handle dragging
+  const handleDragStart = (e) => {
+    setIsDragging(true);
+    setDragStartY(e.clientY || e.touches?.[0]?.clientY);
+  };
+
+  const handleDragMove = (e) => {
+    if (!isDragging || !scrubberRef.current) return;
+
+    const clientY = e.clientY || e.touches?.[0]?.clientY;
+    const scrubberRect = scrubberRef.current.getBoundingClientRect();
+    const relativeY = clientY - scrubberRect.top;
+    const percentage = Math.max(0, Math.min(100, (relativeY / scrubberRect.height) * 100));
+
+    setHandlePosition(percentage);
+
+    // Calculate which year this corresponds to
+    const yearIndex = Math.round((percentage / 100) * (years.length - 1));
+    const targetYear = years[yearIndex];
+
+    if (targetYear && targetYear !== activeYear) {
+      setActiveYear(targetYear);
+      scrollToYear(targetYear);
     }
   };
 
-  // grouped and sortedYears are now defined early at the top of the component
-
-  // Stats are precomputed and fetched from server
-  const subtitleText = `${totalCount} ${totalCount === 1 ? 'moment' : 'moments'} · ${yearSpan} ${yearSpan === 1 ? 'year' : 'years'}`;
-
-  const scrollToYear = (year) => {
-    const el = document.getElementById(`year-group-${year}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+  const handleDragEnd = () => {
+    setIsDragging(false);
   };
 
-  if (initialLoading) {
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
+      window.addEventListener('touchmove', handleDragMove);
+      window.addEventListener('touchend', handleDragEnd);
+
+      return () => {
+        window.removeEventListener('mousemove', handleDragMove);
+        window.removeEventListener('mouseup', handleDragEnd);
+        window.removeEventListener('touchmove', handleDragMove);
+        window.removeEventListener('touchend', handleDragEnd);
+      };
+    }
+  }, [isDragging, handleDragMove]);
+
+  if (loading) {
     return (
-      <div className="loading-container">
-        <div className="spinner"></div>
+      <div className="all-memories-page">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+          <div className="spinner"></div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="all-memories-page">
-      {/* Sticky Top Header */}
-      <div className="all-memories-header">
-        <button className="back-btn-circle" onClick={() => navigate('/')} aria-label="Go back">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 12H5M12 19l-7-7 7-7" />
-          </svg>
-        </button>
-        <div className="header-info">
-          <h1 className="header-title">All memories</h1>
-          <p className="header-subtitle">{subtitleText}</p>
-        </div>
-      </div>
-
-      {/* Horizontal Category Pills Selector */}
-      <div className="filters-row">
-        <button
-          className={`filter-pill ${selectedCategory === 'all' ? 'active' : ''}`}
-          onClick={() => handleCategoryChange('all')}
-        >
-          All
-        </button>
-        {MEMORY_CATEGORIES.map(cat => (
-          <button
-            key={cat.id}
-            className={`filter-pill ${selectedCategory === cat.id ? 'active' : ''}`}
-            onClick={() => handleCategoryChange(cat.id)}
-          >
-            <span className="pill-emoji-span">{cat.emoji}</span>
-            <span>{cat.name}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="list-layout-wrapper">
-        {/* Main List Column */}
-        <div className="memories-list-column">
-          {filtering ? (
-            <div className="filtering-loading-container">
-              <div className="spinner"></div>
-            </div>
-          ) : sortedYears.length === 0 ? (
-            <div className="empty-search-state">
-              <span className="empty-search-icon">🔍</span>
-              <h3>No memories found</h3>
-              <p>Try selecting a different memory type filter.</p>
-            </div>
-          ) : (
-            <>
-              {sortedYears.map(year => (
-                <div key={year} id={`year-group-${year}`} className="year-group">
-                  <div className="year-group-header">
-                    <span className="year-group-title">{year}</span>
-                    <span className="year-group-badge">{grouped[year].length}</span>
-                    <div className="year-group-line"></div>
-                  </div>
-
-                  <div className="year-items-stack">
-                    {grouped[year].map(memory => {
-                      const category = getCategoryInfo(memory.category);
-                      return (
-                        <div
-                          key={memory.id}
-                          className="compact-memory-card"
-                          onClick={() => navigate(`/memory/${memory.id}`)}
-                        >
-                          {/* Thumbnail / Placeholder */}
-                          <div className="compact-card-media">
-                            {getFirstImageUrl(memory.image_url) ? (
-                              <img src={getFirstImageUrl(memory.image_url)} alt="" className="compact-card-img" />
-                            ) : (
-                              <div
-                                className="compact-card-placeholder"
-                                style={{ background: category.color, color: category.textColor }}
-                              >
-                                <span style={{ fontSize: '20px' }}>{category.emoji}</span>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Text Content */}
-                          <div className="compact-card-content">
-                            <span
-                              className="compact-card-category"
-                              style={{ background: category.color, color: category.textColor }}
-                            >
-                              <span>{category.emoji}</span>
-                              <span>{category.name}</span>
-                            </span>
-                            <h4 className="compact-card-title">{memory.title}</h4>
-                            <span className="compact-card-meta">
-                              {formatDate(memory.date)} · by {memory.created_by || 'User'}
-                            </span>
-                          </div>
-
-                          {/* Chevron */}
-                          <div className="compact-card-chevron">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#A0AEC0" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M9 18l6-6-6-6" />
-                            </svg>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
-              
-              {/* Mini Loading Spinner at bottom during pagination */}
-              {fetchingMore && (
-                <div className="fetching-more-spinner">
-                  <div className="spinner mini"></div>
-                </div>
-              )}
-            </>
-          )}
-        </div>
-
-        {/* Scroll Timeline Sidebar (right side index with draggable snap handle) */}
-        {sortedYears.length > 0 && (
-          <div className="timeline-sidebar-container">
-            <div className="timeline-scrollbar-track" ref={trackRef}>
-              {/* Year marks along the track for context */}
-              {sortedYears.map((year, idx) => {
-                const pct = sortedYears.length > 1 ? idx / (sortedYears.length - 1) : 0;
-                // Distribute labels along the track height
-                const positionY = `calc(${pct * 100}% - ${pct * 36}px + 18px)`;
-                return (
-                  <div
-                    key={year}
-                    className={`timeline-track-year-mark ${activeYear === year ? 'active' : ''}`}
-                    style={{ top: positionY }}
-                    onClick={() => scrollToYear(year)}
-                  >
-                    {getYearAbbr(year)}
-                  </div>
-                );
-              })}
-
-              {/* The Draggable Scroll Handle */}
-              <div
-                className={`timeline-scroll-handle ${isDragging ? 'dragging' : ''}`}
-                style={{
-                  top: `calc(${scrollPercentage * 100}% - ${scrollPercentage * 36}px)`
-                }}
-                onPointerDown={handlePointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerEnter={() => setIsHovered(true)}
-                onPointerLeave={() => setIsHovered(false)}
-              >
-                {/* Chevrons/Arrows wrapper */}
-                <div className="handle-arrows">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 15l-6-6-6 6" />
-                  </svg>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M6 9l6 6 6-6" />
-                  </svg>
-                </div>
-
-                {/* Floating Preview Bubble on drag or hover */}
-                {(isDragging || isHovered) && (
-                  <div className="timeline-bubble-preview">
-                    {draggedYear || activeYear || sortedYears[0]}
-                  </div>
-                )}
-              </div>
+      <div className="memories-scroll-container" ref={scrollContainerRef}>
+        {/* Sticky Header */}
+        <div className="memories-header">
+          <div className="header-top">
+            <button className="back-btn" onClick={() => navigate('/')}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7"></path>
+              </svg>
+            </button>
+            <div className="header-info">
+              <h1 className="header-title">All memories</h1>
+              <p className="header-subtitle">
+                {totalMemories} moment{totalMemories !== 1 ? 's' : ''} · {totalYears} year{totalYears !== 1 ? 's' : ''}
+              </p>
             </div>
           </div>
-        )}
+
+          {/* Filter Chips */}
+          <div className="filter-chips">
+            <button
+              className={`filter-chip ${filter === 'all' ? 'active' : ''}`}
+              onClick={() => setFilter('all')}
+            >
+              All
+            </button>
+            {MEMORY_CATEGORIES.map(cat => (
+              <button
+                key={cat.id}
+                className={`filter-chip ${filter === cat.id ? 'active' : ''}`}
+                onClick={() => setFilter(cat.id)}
+              >
+                <span className="filter-icon">{cat.icon}</span>
+                <span>{cat.name}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Memory Groups by Year */}
+        <div className="memories-content">
+          {years.length === 0 ? (
+            <div className="empty-state">
+              <p>No memories found</p>
+            </div>
+          ) : (
+            years.map(year => (
+              <div key={year} id={`year-${year}`} className="year-group">
+                <div className="year-header">
+                  <span className="year-label">{year}</span>
+                  <span className="year-count">{filteredMemories[year].length}</span>
+                  <div className="year-divider"></div>
+                </div>
+
+                {filteredMemories[year].map(memory => {
+                  const categoryStyle = getCategoryStyle(memory.category);
+                  const memoryDate = new Date(memory.date);
+                  const formattedDate = memoryDate.toLocaleDateString('en-US', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                  });
+
+                  const imageUrl = memory.image_url ? (
+                    memory.image_url.startsWith('[')
+                      ? JSON.parse(memory.image_url)[0]
+                      : memory.image_url
+                  ) : null;
+
+                  return (
+                    <div
+                      key={memory.id}
+                      className="memory-card"
+                      onClick={() => navigate(`/memory/${memory.id}`)}
+                    >
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={memory.title}
+                          className="memory-thumbnail"
+                        />
+                      ) : (
+                        <div className="memory-thumbnail-placeholder" style={{ background: categoryStyle.bg }}>
+                          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={categoryStyle.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 2 9.2 8.6 2 9.2l5.5 4.7L5.8 21 12 17.3 18.2 21l-1.7-7.1L22 9.2l-7.2-.6L12 2Z"></path>
+                          </svg>
+                        </div>
+                      )}
+                      <div className="memory-info">
+                        <div className="memory-category" style={{ color: categoryStyle.color, background: categoryStyle.bg }}>
+                          <span className="category-icon">{categoryStyle.icon}</span>
+                          <span>{categoryStyle.name}</span>
+                        </div>
+                        <h3 className="memory-title">{memory.title}</h3>
+                        <p className="memory-meta">
+                          {formattedDate} · by {memory.created_by}
+                        </p>
+                      </div>
+                      <svg className="memory-chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C7D6EE" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m9 6 6 6-6 6"></path>
+                      </svg>
+                    </div>
+                  );
+                })}
+              </div>
+            ))
+          )}
+        </div>
       </div>
+
+      {/* Year Scrubber - Clean minimal design */}
+      {years.length > 1 && (
+        <div className="year-scrubber" ref={scrubberRef}>
+          {/* Draggable Handle */}
+          <div
+            className={`scrubber-handle ${isDragging ? 'dragging' : ''}`}
+            style={{ top: `${handlePosition}%` }}
+            onMouseDown={handleDragStart}
+            onTouchStart={handleDragStart}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M18 15l-6-6-6 6" />
+            </svg>
+            <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 9l6 6 6-6" />
+            </svg>
+
+            {/* Floating Preview - shows on drag or hover */}
+            {(isDragging || isHovered) && (
+              <div className="scrubber-preview">
+                {getPreviewText()}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

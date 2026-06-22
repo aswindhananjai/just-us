@@ -211,7 +211,7 @@ export default function Timeline() {
                   <div className="memory-gradient-overlay"></div>
                   {/* Category badge — white pill like design */}
                   <span className="memory-category-badge">
-                    <span style={{ fontSize: '12px', lineHeight: 1 }}>{category.emoji}</span>
+                    <span className="badge-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 0 }}>{category.icon}</span>
                     {category.name}
                   </span>
                   <div className="memory-card-content">

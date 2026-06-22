@@ -4,6 +4,7 @@ import { supabase } from '../utils/supabase';
 import { uploadImage } from '../utils/cloudinary';
 import { getCurrentUser } from '../utils/auth';
 import { MEMORY_CATEGORIES } from '../utils/constants';
+import { sendMemoryAddedNotification } from '../utils/notifications';
 import '../styles/AddMemory.css';
 
 export default function AddMemory() {
@@ -241,6 +242,16 @@ export default function AddMemory() {
         alert('Note: Some photos could not be uploaded — check your Cloudinary configuration.');
       }
 
+      // Send notification to partner (only for new memories, not edits)
+      if (!isEditMode) {
+        try {
+          await sendMemoryAddedNotification(formData.title, currentUser);
+        } catch (error) {
+          console.error('Error sending notification:', error);
+          // Don't block the flow if notification fails
+        }
+      }
+
       // Go back to where we came from
       navigate(isEditMode ? `/memory/${id}` : '/');
     } catch (error) {
@@ -347,7 +358,7 @@ export default function AddMemory() {
                   className={`category-pill${formData.category === cat.id ? ' selected' : ''}`}
                   onClick={() => handleCategoryChange(cat.id)}
                 >
-                  <span className="pill-emoji">{cat.emoji}</span>
+                  <span className="pill-icon">{cat.icon}</span>
                   <span className="pill-label">{cat.name}</span>
                 </button>
               ))}

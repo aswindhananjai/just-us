@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { isAuthenticated, logout } from './utils/auth';
+import { requestNotificationPermission, setupForegroundMessageListener } from './utils/notifications';
 
 // Pages
 import PasscodeLock from './pages/PasscodeLock';
@@ -36,6 +37,19 @@ function ProtectedRoute({ children }) {
 function AppContent() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    // Request notification permission when user is authenticated
+    if (isAuthenticated()) {
+      // Request permission after a short delay to not overwhelm on first load
+      const timer = setTimeout(() => {
+        requestNotificationPermission();
+        setupForegroundMessageListener();
+      }, 2000);
+
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   useEffect(() => {
     // Auto-lock when app goes to background

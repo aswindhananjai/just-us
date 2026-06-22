@@ -247,7 +247,7 @@ export default function MemoryDetail() {
       <div className="detail-body">
         {/* Category pill */}
         <div className="detail-category" style={{ color: category.textColor, background: category.color }}>
-          <span>{category.emoji}</span>
+          <span className="category-icon">{category.icon}</span>
           <span>{category.name}</span>
         </div>
 
