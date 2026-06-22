@@ -24,10 +24,6 @@ const setCachedUsers = (users) => {
 // Fetch all users from database
 export const fetchUsers = async () => {
   try {
-    // Check cache first
-    const cached = getCachedUsers();
-    if (cached) return cached;
-
     // Fetch from database
     const { data, error } = await supabase
       .from('users')

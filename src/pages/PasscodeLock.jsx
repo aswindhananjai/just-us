@@ -45,9 +45,7 @@ export default function PasscodeLock() {
       <div className="passcode-content">
         <div className="logo-placeholder">
           <div className="logo-image">
-            <svg width="46" height="46" viewBox="0 0 24 24" fill="none">
-              <path d="M12 21s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.6 4.5 4.5 0 0 1 19.5 11c0 5.4-7.5 10-7.5 10Z" fill="#fff" />
-            </svg>
+            <img src="/logo.png" alt="Just Us Logo" />
           </div>
         </div>
 

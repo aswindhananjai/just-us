@@ -98,6 +98,19 @@ export default function Timeline() {
     return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
+  const getFirstImageUrl = (imageUrlString) => {
+    if (!imageUrlString) return null;
+    try {
+      if (imageUrlString.startsWith('[')) {
+        const arr = JSON.parse(imageUrlString);
+        return arr.length > 0 ? arr[0] : null;
+      }
+      return imageUrlString;
+    } catch (e) {
+      return imageUrlString;
+    }
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -164,14 +177,15 @@ export default function Timeline() {
           <>
             {memories.slice(0, 5).map(memory => {
               const category = getCategoryInfo(memory.category);
+              const previewUrl = getFirstImageUrl(memory.image_url);
               return (
                 <div
                   key={memory.id}
-                  className={`big-memory-card ${!memory.image_url ? 'no-image' : ''}`}
+                  className={`big-memory-card ${!previewUrl ? 'no-image' : ''}`}
                   onClick={() => navigate(`/memory/${memory.id}`)}
                 >
-                  {memory.image_url
-                    ? <img src={memory.image_url} alt={memory.title} />
+                  {previewUrl
+                    ? <img src={previewUrl} alt={memory.title} />
                     : (
                       <div
                         className="memory-card-default-bg"

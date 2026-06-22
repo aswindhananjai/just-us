@@ -60,7 +60,7 @@
 .detail-hero {
   position: relative;
   width: 100%;
-  height: 300px;
+  height: 380px; /* slightly taller for immersive look */
   overflow: hidden;
   background: var(--color-background-light);
 }
@@ -72,18 +72,62 @@
   display: block;
 }
 
-/* Default background (no image) */
-.detail-hero-default {
+/* ─── Carousel Styles ────────────────────────── */
+.detail-carousel-container {
+  position: relative;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Hide standard Firefox scrollbars */
+  -ms-overflow-style: none;  /* Hide IE/Edge scrollbars */
 }
 
-.detail-hero-emoji {
-  font-size: 80px;
-  filter: drop-shadow(0 8px 24px rgba(0,0,0,0.12));
+.detail-carousel-container::-webkit-scrollbar {
+  display: none; /* Hide Chrome/Safari scrollbars */
+}
+
+.detail-carousel-track {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-slide {
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+  scroll-snap-align: start;
+}
+
+.carousel-indicator-dots {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+  padding: 5px 10px;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
+}
+
+.carousel-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.carousel-dot.active {
+  background: #fff;
+  width: 14px;
+  border-radius: 3px;
 }
 
 /* ─── Overlay Controls (back + 3-dot) ─────────── */

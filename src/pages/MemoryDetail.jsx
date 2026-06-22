@@ -12,7 +12,30 @@ export default function MemoryDetail() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
   const menuRef = useRef(null);
+  const carouselRef = useRef(null);
+
+  const handleScroll = (e) => {
+    const scrollLeft = e.target.scrollLeft;
+    const width = e.target.offsetWidth;
+    if (width > 0) {
+      const activeIdx = Math.round(scrollLeft / width);
+      setActiveImageIndex(activeIdx);
+    }
+  };
+
+  const scrollToImage = (index) => {
+    const container = carouselRef.current;
+    if (container) {
+      const width = container.offsetWidth;
+      container.scrollTo({
+        left: index * width,
+        behavior: 'smooth'
+      });
+      setActiveImageIndex(index);
+    }
+  };
 
   useEffect(() => {
     fetchMemory();
@@ -89,7 +112,20 @@ export default function MemoryDetail() {
 
   if (!memory) return null;
 
-  const hasImage = Boolean(memory.image_url);
+  const getImagesList = () => {
+    if (!memory || !memory.image_url) return [];
+    try {
+      if (memory.image_url.startsWith('[')) {
+        return JSON.parse(memory.image_url);
+      }
+      return [memory.image_url];
+    } catch (e) {
+      return [memory.image_url];
+    }
+  };
+
+  const imagesList = getImagesList();
+  const hasImage = imagesList.length > 0;
   const category = getCategoryInfo(memory.category);
 
   return (
@@ -97,7 +133,39 @@ export default function MemoryDetail() {
       {/* Full-bleed hero — only when image exists */}
       {hasImage ? (
         <div className="detail-hero">
-          <img className="detail-hero-img" src={memory.image_url} alt={memory.title} />
+          {imagesList.length === 1 ? (
+            <img className="detail-hero-img" src={imagesList[0]} alt={memory.title} />
+          ) : (
+            <>
+              <div
+                className="detail-carousel-container"
+                ref={carouselRef}
+                onScroll={handleScroll}
+              >
+                <div className="detail-carousel-track">
+                  {imagesList.map((url, idx) => (
+                    <img
+                      key={idx}
+                      className="detail-hero-img carousel-slide"
+                      src={url}
+                      alt={`${memory.title} slide ${idx + 1}`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {/* Indicator dots — stationary overlay */}
+              <div className="carousel-indicator-dots">
+                {imagesList.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`carousel-dot ${i === activeImageIndex ? 'active' : ''}`}
+                    onClick={() => scrollToImage(i)}
+                  />
+                ))}
+              </div>
+            </>
+          )}
 
           {/* Overlay controls */}
           <div className="detail-overlay-controls">

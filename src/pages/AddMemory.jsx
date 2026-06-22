@@ -14,7 +14,6 @@ export default function AddMemory() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditMode);
   const [images, setImages] = useState([]);
-  const [existingImageUrl, setExistingImageUrl] = useState(null);
   const [dragIndex, setDragIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const fileInputRef = useRef(null);
@@ -46,7 +45,24 @@ export default function AddMemory() {
           description: data.description || '',
           location: data.location || '',
         });
-        if (data.image_url) setExistingImageUrl(data.image_url);
+        
+        if (data.image_url) {
+          let urls = [];
+          try {
+            if (data.image_url.startsWith('[')) {
+              urls = JSON.parse(data.image_url);
+            } else {
+              urls = [data.image_url];
+            }
+          } catch (e) {
+            urls = [data.image_url];
+          }
+          setImages(urls.map((url, i) => ({
+            id: `existing-${i}-${Math.random()}`,
+            preview: url,
+            file: null
+          })));
+        }
       } catch (err) {
         console.error('Failed to load memory:', err);
         navigate('/');
@@ -170,15 +186,29 @@ export default function AddMemory() {
     setLoading(true);
 
     try {
-      let imageUrl = existingImageUrl; // keep existing image by default
+      let imageUrl = null;
       let imageUploadWarning = false;
 
-      // Try to upload new image if added
+      // Upload new images and preserve existing URLs
       if (images.length > 0) {
         try {
-          imageUrl = await uploadImage(images[0].file);
+          const urls = [];
+          for (const img of images) {
+            if (img.file) {
+              try {
+                const url = await uploadImage(img.file);
+                urls.push(url);
+              } catch (err) {
+                console.error('Individual image upload failed:', err);
+                imageUploadWarning = true;
+              }
+            } else {
+              urls.push(img.preview);
+            }
+          }
+          imageUrl = urls.length > 0 ? JSON.stringify(urls) : null;
         } catch (uploadError) {
-          console.error('Image upload failed, saving without image:', uploadError);
+          console.error('Image uploads failed:', uploadError);
           imageUploadWarning = true;
         }
       }
@@ -208,7 +238,7 @@ export default function AddMemory() {
       }
 
       if (imageUploadWarning) {
-        alert('Memory saved! Note: The photo could not be uploaded — check your Cloudinary cloud name and upload preset in .env');
+        alert('Note: Some photos could not be uploaded — check your Cloudinary configuration.');
       }
 
       // Go back to where we came from
@@ -251,14 +281,6 @@ export default function AddMemory() {
               </div>
               <div className="photo-count">{images.length} of 5</div>
             </div>
-
-            {/* Show existing image in edit mode */}
-            {isEditMode && existingImageUrl && images.length === 0 && (
-              <div className="existing-image-preview">
-                <img src={existingImageUrl} alt="Current" />
-                <p className="existing-image-label">Current photo — add new photo below to replace</p>
-              </div>
-            )}
 
             <div className="photos-grid">
               {/* Plus button always first */}

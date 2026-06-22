@@ -118,7 +118,7 @@
 /* Main List Column */
 .memories-list-column {
   flex: 1;
-  max-width: calc(100% - 32px); /* Leave room for the scroll sidebar */
+  max-width: calc(100% - 56px); /* Leave room for the 44px wide scroll sidebar + gap */
 }
 
 /* Year Groupings */
@@ -254,58 +254,109 @@
   padding-right: 2px;
 }
 
-/* Scroll Timeline Sidebar (right side index) */
+/* Scroll Timeline Sidebar (right side index with draggable snap handle) */
 .timeline-sidebar-container {
-  width: 24px;
+  width: 44px;
   position: sticky;
-  top: 140px;
+  top: 160px;
   align-self: flex-start;
-  height: auto;
-  margin-left: 8px;
+  height: 380px; /* fixed track height so calculations are highly reliable and neat */
+  margin-left: 12px;
+  display: flex;
+  justify-content: center;
+  user-select: none;
+  z-index: 100;
+}
+
+.timeline-scrollbar-track {
+  position: relative;
+  width: 4px;
+  height: 100%;
+  background: var(--color-border-light);
+  border-radius: 99px;
   display: flex;
   justify-content: center;
 }
 
-.timeline-sidebar-track {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.timeline-sidebar-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  margin-bottom: 2px;
-}
-
-.timeline-sidebar-label {
-  font-size: 10px;
+.timeline-track-year-mark {
+  position: absolute;
+  left: -34px;
+  transform: translateY(-50%);
+  font-size: 11px;
   font-weight: 800;
-  color: var(--color-primary);
-  margin-bottom: 4px;
-}
-
-.timeline-sidebar-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #E2E8F0;
+  color: var(--color-text-muted);
+  cursor: pointer;
   transition: all 0.2s ease;
+  padding: 4px;
+  white-space: nowrap;
 }
 
-.timeline-sidebar-dot.active {
-  background: var(--color-primary);
-  transform: scale(1.35);
-  box-shadow: 0 0 8px rgba(45, 111, 224, 0.45);
+.timeline-track-year-mark.active {
+  color: var(--color-primary);
+  font-weight: 900;
+  transform: translateY(-50%) scale(1.15);
 }
 
-.timeline-sidebar-dot-spacer {
-  width: 2px;
-  height: 18px;
-  background: #EDF2F7;
-  margin: 3px 0;
+.timeline-scroll-handle {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-text-primary); /* Dark bubble */
+  color: #FFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  box-shadow: 0 4px 12px rgba(20, 35, 59, 0.25);
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  touch-action: none; /* Crucial for PointerEvents to work on touch screens! */
+  z-index: 10;
+}
+
+.timeline-scroll-handle:active {
+  cursor: grabbing;
+  transform: translateX(-50%) scale(1.1);
+  background: var(--color-primary); /* changes to blue when active/dragged! */
+  box-shadow: 0 6px 16px rgba(45, 111, 224, 0.4);
+}
+
+.handle-arrows {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.timeline-bubble-preview {
+  position: absolute;
+  right: 48px; /* sits to the left of the handle */
+  top: 50%;
+  transform: translateY(-50%);
+  background: var(--color-text-primary);
+  color: #FFF;
+  font-size: 12px;
+  font-weight: 800;
+  padding: 6px 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  animation: fadeIn 0.2s ease;
+  white-space: nowrap;
+}
+
+/* Add a small arrow to the preview bubble */
+.timeline-bubble-preview::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent var(--color-text-primary);
 }
 
 /* Empty Search results state */
@@ -340,6 +391,26 @@
     padding: 0 16px;
   }
   .memories-list-column {
-    max-width: calc(100% - 24px);
+    max-width: calc(100% - 48px);
   }
+}
+
+.fetching-more-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 16px;
+}
+
+.spinner.mini {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+.filtering-loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 250px;
+  width: 100%;
 }
