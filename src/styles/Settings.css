@@ -1,0 +1,66 @@
+.settings-page {
+  min-height: 100vh;
+  background: white;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+}
+
+.settings-header {
+  padding: var(--spacing-xl) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-header h1 {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-semibold);
+}
+
+.settings-form {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-lg);
+}
+
+.settings-actions {
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg) var(--spacing-xl);
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 12px;
+  color: #d32f2f;
+  border-color: #d32f2f;
+}
+
+.logout-btn:hover {
+  background: #ffebee;
+}
+
+.settings-footer {
+  max-width: 768px;
+  margin: var(--spacing-2xl) auto 0;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  text-align: center;
+  border-top: 1px solid var(--color-border);
+}
+
+.app-version {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.app-tagline {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .settings-form,
+  .settings-actions {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+}

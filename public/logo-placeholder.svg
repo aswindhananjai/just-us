@@ -1,0 +1,10 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rounded square background -->
+  <rect width="512" height="512" rx="100" fill="white"/>
+
+  <!-- Stylized 'A' symbol representing both Aswin and Anu -->
+  <path d="M256 140 L340 360 L300 360 L280 310 L232 310 L212 360 L172 360 L256 140 Z M256 200 L245 240 L267 240 L256 200 Z" fill="#014F86"/>
+
+  <!-- Second 'A' overlapping, creating a connected design -->
+  <path d="M280 150 L364 370 L324 370 L304 320 L256 320 L236 370 L196 370 L280 150 Z M280 210 L269 250 L291 250 L280 210 Z" fill="#014F86" opacity="0.6"/>
+</svg>

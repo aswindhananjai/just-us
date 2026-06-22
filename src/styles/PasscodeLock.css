@@ -1,0 +1,130 @@
+.passcode-lock {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  padding: var(--spacing-lg);
+}
+
+.passcode-content {
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+}
+
+.logo-placeholder {
+  margin-bottom: var(--spacing-xl);
+}
+
+.logo-circle {
+  width: 80px;
+  height: 80px;
+  background: var(--color-primary);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 40px;
+  font-weight: var(--font-weight-semibold);
+  margin: 0 auto;
+}
+
+.app-name {
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-primary);
+}
+
+.subtitle {
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-2xl);
+  font-size: var(--font-size-base);
+}
+
+.passcode-dots {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  transition: all 0.2s ease;
+}
+
+.dot.filled {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.dot.error {
+  background: #d32f2f;
+  border-color: #d32f2f;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.error-message {
+  color: #d32f2f;
+  font-size: var(--font-size-sm);
+  margin-top: var(--spacing-md);
+  min-height: 20px;
+}
+
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-md);
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.key {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: white;
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.key:active {
+  background: var(--color-hover);
+  transform: scale(0.95);
+}
+
+.key-spacer {
+  aspect-ratio: 1;
+}
+
+.delete-key {
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 480px) {
+  .keypad {
+    gap: var(--spacing-sm);
+  }
+
+  .key {
+    font-size: var(--font-size-lg);
+  }
+}
