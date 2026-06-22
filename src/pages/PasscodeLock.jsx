@@ -44,10 +44,12 @@ export default function PasscodeLock() {
     <div className="passcode-lock">
       <div className="passcode-content">
         <div className="logo-placeholder">
-          <img src="/logo.png" alt="Just us" className="logo-image" />
+          <div className="logo-image">
+            <svg width="46" height="46" viewBox="0 0 24 24" fill="none">
+              <path d="M12 21s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.6 4.5 4.5 0 0 1 19.5 11c0 5.4-7.5 10-7.5 10Z" fill="#fff" />
+            </svg>
+          </div>
         </div>
-
-        <h1 className="app-name">Just us</h1>
 
         <p className="subtitle">Enter your passcode</p>
 
@@ -77,7 +79,10 @@ export default function PasscodeLock() {
             0
           </button>
           <button className="key delete-key" onClick={handleDelete}>
-            ⌫
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9AA7BD" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 5H8.5L3 12l5.5 7H21a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z"></path>
+              <path d="m12 9 5 6m0-6-5 6"></path>
+            </svg>
           </button>
         </div>
       </div>

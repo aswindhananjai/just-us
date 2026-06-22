@@ -1,139 +1,138 @@
+/* Settings - Immersive Duo Design */
+
 .settings-page {
   min-height: 100vh;
-  background: white;
+  background: #fff;
   padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
 }
 
-.settings-header {
-  padding: var(--spacing-xl) var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border);
+/* Profile Hero Card */
+.profile-hero-card {
+  position: relative;
+  background: var(--gradient-hero);
+  color: #fff;
+  border-radius: 0 0 36px 36px;
+  padding: 34px 22px 40px;
+  margin-bottom: var(--spacing-xl);
 }
 
-.settings-header h1 {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-}
-
-.settings-content {
-  max-width: 768px;
-  margin: 0 auto;
-  padding: var(--spacing-xl) var(--spacing-lg);
-}
-
-.settings-info {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-2xl);
-}
-
-.info-card {
-  background: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-lg);
-}
-
-.info-card h3 {
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-sm);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.info-card p {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-primary);
-  font-weight: var(--font-weight-medium);
-}
-
-.current-user {
-  color: var(--color-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-.info-detail {
-  font-size: var(--font-size-base);
-  color: var(--color-text-secondary);
-  font-weight: var(--font-weight-regular);
-  margin-top: var(--spacing-xs);
-}
-
-/* Profile Pictures Section */
-.profile-pictures-section {
-  margin-bottom: var(--spacing-2xl);
-}
-
-.section-title {
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-semibold);
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-lg);
-}
-
-.profile-picture-card {
-  background: white;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-lg);
-  margin-bottom: var(--spacing-md);
+.profile-hero-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--spacing-md);
+  gap: var(--spacing-lg);
 }
 
-.profile-picture-header {
+.profile-hero-image {
+  width: 86px;
+  height: 86px;
+  border-radius: 24px;
+  border: 4px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.24);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.profile-hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-hero-info {
   flex: 1;
 }
 
-.profile-info {
+.profile-hero-greeting {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  opacity: 0.82;
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+
+.profile-hero-name {
+  font-family: var(--font-family-display);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-extrabold);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.profile-hero-meta {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  opacity: 0.76;
+}
+
+/* Settings Content */
+.settings-content {
+  padding: 0 22px var(--spacing-xl);
+}
+
+/* Section Title */
+.settings-section-title {
+  font-size: 19px;
+  font-weight: var(--font-weight-extrabold);
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text-primary);
+}
+
+/* Profile Picture Card */
+.profile-picture-card {
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.profile-picture-header {
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
 }
 
 .profile-preview {
   width: 64px;
   height: 64px;
   border-radius: 50%;
+  border: 2px solid var(--color-border-light);
   object-fit: cover;
-  border: 2px solid var(--color-border);
-  background: var(--color-hover);
 }
 
-.profile-info h3 {
+.profile-text h3 {
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .profile-hint {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
 }
 
 .upload-btn {
   display: inline-block;
-  padding: 10px 20px;
-  background: var(--color-primary);
-  color: white;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  width: 100%;
+  padding: 13px 20px;
+  background: var(--gradient-button);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
   cursor: pointer;
   transition: all 0.2s ease;
-  border: none;
-  white-space: nowrap;
+  text-align: center;
+  box-shadow: 0 6px 18px rgba(45, 111, 224, 0.3);
   -webkit-tap-highlight-color: transparent;
 }
 
 .upload-btn:active {
   transform: scale(0.98);
-  background: #013a65;
 }
 
 .upload-btn:has(input:disabled) {
@@ -141,47 +140,120 @@
   cursor: not-allowed;
 }
 
-.settings-actions {
-  max-width: 768px;
-  margin: 0 auto;
-  padding: 0 var(--spacing-lg) var(--spacing-xl);
-}
-
-.logout-btn {
+/* Lock Button */
+.lock-btn {
   width: 100%;
-  padding: 12px;
-  color: #d32f2f;
-  border-color: #d32f2f;
+  padding: 14px 24px;
+  background: transparent;
+  color: var(--color-error);
+  border: 1.5px solid var(--color-error);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: var(--spacing-xl);
+  -webkit-tap-highlight-color: transparent;
 }
 
-.logout-btn:hover {
-  background: #ffebee;
+.lock-btn:active {
+  background: rgba(224, 85, 111, 0.08);
 }
 
-.settings-footer {
-  max-width: 768px;
-  margin: var(--spacing-2xl) auto 0;
-  padding: var(--spacing-xl) var(--spacing-lg);
+/* App Footer */
+.app-footer {
   text-align: center;
+  padding: var(--spacing-xl) 22px;
   border-top: 1px solid var(--color-border);
+  margin-top: var(--spacing-2xl);
 }
 
 .app-version {
   font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-xs);
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+  font-weight: var(--font-weight-medium);
 }
 
 .app-tagline {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);
   font-style: italic;
+  font-weight: var(--font-weight-medium);
+}
+
+/* Bottom navigation */
+.bottom-nav-settings {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 76px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 46px;
+  z-index: 100;
+}
+
+.nav-item-settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.nav-item-settings svg {
+  width: 24px;
+  height: 24px;
+}
+
+.nav-item-settings span {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+.nav-item-settings.active svg {
+  stroke: var(--color-primary);
+}
+
+.nav-item-settings.active span {
+  color: var(--color-primary);
+}
+
+.nav-item-settings.inactive svg {
+  stroke: var(--color-text-muted);
+}
+
+.nav-item-settings.inactive span {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-semibold);
 }
 
 @media (max-width: 768px) {
-  .settings-content,
-  .settings-actions {
-    padding-left: var(--spacing-md);
-    padding-right: var(--spacing-md);
+  .profile-hero-card {
+    padding: 28px 20px 36px;
+  }
+
+  .settings-content {
+    padding: 0 20px var(--spacing-lg);
+  }
+}
+
+@media (max-width: 375px) {
+  .profile-hero-image {
+    width: 76px;
+    height: 76px;
+  }
+
+  .profile-hero-name {
+    font-size: var(--font-size-2xl);
   }
 }

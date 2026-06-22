@@ -1,21 +1,32 @@
-/* Just us - Global Styles */
-/* Airbnb-inspired design system */
+/* Just us - Immersive Duo Design System */
 
 :root {
-  /* Colors - Airbnb palette */
-  --color-primary: #FF385C;
-  --color-primary-dark: #E31C5F;
+  /* Colors - Immersive Duo palette */
+  --color-primary: #2D6FE0;
+  --color-primary-dark: #1B4FA8;
+  --color-brand-light: #3B82F6;
   --color-background: #FFFFFF;
-  --color-background-light: #F7F7F7;
-  --color-text-primary: #222222;
-  --color-text-secondary: #717171;
-  --color-text-tertiary: #B0B0B0;
-  --color-border: #DDDDDD;
-  --color-border-light: #EBEBEB;
-  --color-success: #008A05;
-  --color-hover: #F7F7F7;
+  --color-background-light: #F4F8FE;
+  --color-background-lighter: #F6F9FD;
+  --color-text-primary: #14233B;
+  --color-text-secondary: #6B7A93;
+  --color-text-tertiary: #8693A8;
+  --color-text-muted: #9AA7BD;
+  --color-border: #EEF2F8;
+  --color-border-light: #E8EEF7;
+  --color-border-lighter: #C7D6EE;
+  --color-success: #1B8A5B;
+  --color-error: #E0556F;
+  --color-pink: #FF7A93;
+  --color-pink-dark: #C2487A;
+  --color-hover: #EAF1FC;
 
-  /* Spacing - Airbnb system */
+  /* Gradients */
+  --gradient-hero: linear-gradient(165deg, #3B82F6 0%, #2D6FE0 45%, #1B4FA8 100%);
+  --gradient-button: linear-gradient(160deg, #2D6FE0, #1B4FA8);
+  --gradient-radial-light: radial-gradient(120% 60% at 50% 0%, #EAF1FC 0%, #FFFFFF 55%);
+
+  /* Spacing */
   --spacing-xs: 4px;
   --spacing-sm: 8px;
   --spacing-md: 12px;
@@ -24,35 +35,44 @@
   --spacing-2xl: 32px;
   --spacing-3xl: 48px;
 
-  /* Border radius - Airbnb style */
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  /* Border radius */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-2xl: 26px;
   --radius-full: 50%;
 
-  /* Shadows - Airbnb elevations */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 0 0 1px rgba(0,0,0,0.02), 0 8px 24px rgba(0,0,0,0.10);
-  --shadow-lg: 0 2px 16px rgba(0, 0, 0, 0.12);
+  /* Shadows */
+  --shadow-sm: 0 4px 12px rgba(20, 35, 59, 0.05);
+  --shadow-md: 0 6px 16px rgba(20, 35, 59, 0.05);
+  --shadow-lg: 0 12px 26px rgba(20, 35, 59, 0.12);
+  --shadow-button: 0 10px 24px rgba(45, 111, 224, 0.45);
+  --shadow-card: 0 14px 30px rgba(45, 111, 224, 0.32);
 
-  /* Typography - Airbnb Cereal style */
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --font-size-xs: 12px;
-  --font-size-sm: 14px;
-  --font-size-base: 16px;
+  /* Typography - Plus Jakarta Sans & Fredoka */
+  --font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-family-display: 'Fredoka', sans-serif;
+  --font-size-xs: 10.5px;
+  --font-size-sm: 12px;
+  --font-size-base: 14px;
+  --font-size-md: 15px;
   --font-size-lg: 18px;
   --font-size-xl: 20px;
   --font-size-2xl: 24px;
-  --font-size-3xl: 32px;
+  --font-size-3xl: 28px;
+  --font-size-4xl: 32px;
+  --font-size-jumbo: 72px;
 
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
 
-  --line-height-tight: 1.2;
+  --line-height-tight: 1.15;
   --line-height-normal: 1.43;
-  --line-height-relaxed: 1.6;
+  --line-height-relaxed: 1.7;
 }
 
 * {
@@ -70,6 +90,7 @@ html, body {
   color: var(--color-text-primary);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
+  font-weight: var(--font-weight-medium);
 }
 
 #root {
@@ -80,13 +101,14 @@ html, body {
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-extrabold);
   line-height: var(--line-height-tight);
   color: var(--color-text-primary);
+  font-family: var(--font-family-display);
 }
 
 h1 {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-4xl);
 }
 
 h2 {
@@ -106,10 +128,11 @@ p {
 button {
   font-family: var(--font-family);
   font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-bold);
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button:disabled {
@@ -118,16 +141,12 @@ button:disabled {
 }
 
 .btn-primary {
-  background: var(--color-primary);
+  background: var(--gradient-button);
   color: white;
   padding: 14px 24px;
-  border-radius: var(--radius-sm);
-  font-weight: var(--font-weight-semibold);
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: var(--color-primary-dark);
-  transform: scale(1.02);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-extrabold);
+  box-shadow: var(--shadow-button);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -137,61 +156,58 @@ button:disabled {
 .btn-secondary {
   background: transparent;
   color: var(--color-text-primary);
-  border: 1px solid var(--color-border);
+  border: 1.5px solid var(--color-border-light);
   padding: 14px 24px;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-extrabold);
 }
 
-.btn-secondary:hover:not(:disabled) {
-  background: var(--color-hover);
-  border-color: var(--color-text-primary);
+.btn-secondary:active:not(:disabled) {
+  background: var(--color-background-light);
 }
 
 /* Cards */
 .card {
   background: white;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
   overflow: hidden;
   transition: all 0.2s ease;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-md);
 }
 
 /* Inputs */
 input, textarea, select {
   font-family: var(--font-family);
-  font-size: var(--font-size-base);
-  padding: 11px 12px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  padding: 14px 16px;
+  border: 1.5px solid var(--color-border-light);
+  border-radius: var(--radius-md);
   outline: none;
   width: 100%;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  background: var(--color-background-lighter);
+  color: var(--color-text-primary);
+  transition: all 0.2s ease;
 }
 
 input:focus, textarea:focus, select:focus {
-  border-color: var(--color-text-primary);
-  box-shadow: 0 0 0 2px rgba(34, 34, 34, 0.1);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(45, 111, 224, 0.1);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
 }
 
 /* Container */
 .container {
-  max-width: 1280px;
+  max-width: 768px;
   margin: 0 auto;
-  padding: 0 var(--spacing-xl);
+  padding: 0 22px;
 }
 
-/* Mobile optimizations */
-@media (max-width: 744px) {
-  .container {
-    padding: 0 var(--spacing-xl);
-  }
-}
-
-/* Smooth animations */
+/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -201,6 +217,11 @@ input:focus, textarea:focus, select:focus {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
 }
 
 .fade-in {
