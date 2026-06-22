@@ -44,7 +44,7 @@ export default function PasscodeLock() {
     <div className="passcode-lock">
       <div className="passcode-content">
         <div className="logo-placeholder">
-          <div className="logo-circle">A</div>
+          <img src="/logo.png" alt="Just us" className="logo-image" />
         </div>
 
         <h1 className="app-name">Just us</h1>

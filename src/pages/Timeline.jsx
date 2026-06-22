@@ -78,21 +78,24 @@ export default function Timeline() {
       {/* Header */}
       <header className="timeline-header">
         <div className="header-content">
-          <div className="header-icon">💕</div>
-          <div className="header-text">
-            <div className="names-container">
-              <span className="name">Aswin</span>
-              <span className="ampersand">&</span>
-              <span className="name">Anu</span>
+          <div className="profile-section">
+            <div className="profile-picture-container">
+              <img src="/aswin.png" alt="Aswin" className="profile-picture" />
+              <div className="profile-name">Aswin</div>
             </div>
-            <div className="days-container">
-              <div className="days-number">{calculateDaysTogether()}</div>
-              <div className="days-label">days of us</div>
+
+            <div className="center-content">
+              <div className="heart-icon">💕</div>
+              <div className="days-badge">
+                <div className="days-number">{calculateDaysTogether()}</div>
+                <div className="days-label">days together</div>
+              </div>
             </div>
-          </div>
-          <div className="header-decoration">
-            <div className="heart-small">♥</div>
-            <div className="heart-small delay">♥</div>
+
+            <div className="profile-picture-container">
+              <img src="/anu.png" alt="Anu" className="profile-picture" />
+              <div className="profile-name">Anu</div>
+            </div>
           </div>
         </div>
       </header>

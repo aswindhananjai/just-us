@@ -17,18 +17,12 @@
   margin-bottom: var(--spacing-xl);
 }
 
-.logo-circle {
-  width: 80px;
-  height: 80px;
-  background: var(--color-primary);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-size: 40px;
-  font-weight: var(--font-weight-semibold);
+.logo-image {
+  width: 100px;
+  height: 100px;
   margin: 0 auto;
+  display: block;
+  border-radius: var(--radius-md);
 }
 
 .app-name {

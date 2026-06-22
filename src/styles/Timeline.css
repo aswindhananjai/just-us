@@ -6,7 +6,7 @@
 .timeline-header {
   background: linear-gradient(135deg, #014F86 0%, #0169b3 100%);
   padding: var(--spacing-2xl) var(--spacing-lg);
-  border-radius: 0 0 24px 24px;
+  border-radius: 0 0 28px 28px;
   box-shadow: 0 4px 20px rgba(1, 79, 134, 0.15);
   margin-bottom: var(--spacing-lg);
 }
@@ -14,55 +14,66 @@
 .header-content {
   max-width: 768px;
   margin: 0 auto;
+}
+
+.profile-section {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--spacing-lg);
+}
+
+.profile-picture-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.profile-picture {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  object-fit: cover;
+  background: white;
+}
+
+.profile-name {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: white;
+  text-align: center;
+  letter-spacing: 0.5px;
+}
+
+.center-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: var(--spacing-md);
 }
 
-.header-icon {
-  font-size: 48px;
+.heart-icon {
+  font-size: 36px;
   animation: pulse 2s ease-in-out infinite;
 }
 
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  50% { transform: scale(1.15); }
 }
 
-.header-text {
-  flex: 1;
-  text-align: center;
-}
-
-.names-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-sm);
-}
-
-.name {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-semibold);
-  color: white;
-  letter-spacing: 0.5px;
-}
-
-.ampersand {
-  font-size: var(--font-size-lg);
-  color: rgba(255, 255, 255, 0.7);
-  font-weight: var(--font-weight-regular);
-}
-
-.days-container {
-  background: rgba(255, 255, 255, 0.15);
+.days-badge {
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border-radius: var(--radius-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  display: inline-block;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: var(--spacing-md) var(--spacing-xl);
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  min-width: 140px;
 }
 
 .days-number {
@@ -70,41 +81,13 @@
   font-weight: var(--font-weight-semibold);
   color: white;
   line-height: 1;
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
 
 .days-label {
   font-size: var(--font-size-sm);
-  color: rgba(255, 255, 255, 0.9);
-  text-transform: lowercase;
-  letter-spacing: 1px;
-}
-
-.header-decoration {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.heart-small {
-  font-size: 20px;
-  color: rgba(255, 255, 255, 0.6);
-  animation: float 3s ease-in-out infinite;
-}
-
-.heart-small.delay {
-  animation-delay: 1.5s;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-10px);
-    opacity: 1;
-  }
+  color: rgba(255, 255, 255, 0.95);
+  letter-spacing: 0.5px;
 }
 
 .timeline-content {
@@ -240,24 +223,34 @@
     padding: var(--spacing-md);
   }
 
-  .header-content {
-    flex-direction: row;
+  .profile-section {
     gap: var(--spacing-sm);
   }
 
-  .header-icon {
-    font-size: 36px;
+  .profile-picture {
+    width: 64px;
+    height: 64px;
+    border-width: 3px;
   }
 
-  .name {
-    font-size: var(--font-size-xl);
+  .profile-name {
+    font-size: var(--font-size-sm);
+  }
+
+  .heart-icon {
+    font-size: 28px;
+  }
+
+  .days-badge {
+    padding: var(--spacing-sm) var(--spacing-md);
+    min-width: 110px;
   }
 
   .days-number {
     font-size: var(--font-size-2xl);
   }
 
-  .header-decoration {
-    display: none;
+  .days-label {
+    font-size: 11px;
   }
 }
