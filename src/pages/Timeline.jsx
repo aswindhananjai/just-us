@@ -34,7 +34,8 @@ export default function Timeline() {
         .from('memories')
         .select('*')
         .eq('is_active', true)
-        .order('date', { ascending: false });
+        .order('date', { ascending: false })
+        .order('sort_order', { ascending: true });
 
       if (error) throw error;
 

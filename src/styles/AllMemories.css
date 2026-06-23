@@ -381,3 +381,22 @@
     font-size: 14px;
   }
 }
+
+/* ─── Reordering / Drag and Drop indicator styles ─────────────────── */
+.memory-card.dragging {
+  opacity: 0.45;
+  transform: scale(0.97);
+  border-style: dashed;
+  border-color: var(--color-primary, #2D6FE0);
+  box-shadow: none;
+}
+
+.memory-card.touch-dragging {
+  transform: scale(1.04);
+  box-shadow: 0 16px 36px rgba(20, 35, 59, 0.16);
+  opacity: 0.95;
+  z-index: 1000;
+  border-color: var(--color-primary, #2D6FE0);
+  background: var(--color-background-light, #F4F8FE);
+  pointer-events: none; /* prevent the dragging card from blocking elementFromPoint queries */
+}

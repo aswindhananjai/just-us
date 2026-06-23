@@ -61,6 +61,11 @@ export default function AllMemories() {
   const [handlePosition, setHandlePosition] = useState(0);
   const scrubberRef = useRef(null);
 
+  const [draggedMemory, setDraggedMemory] = useState(null);
+  const [touchDraggingId, setTouchDraggingId] = useState(null);
+  const [hasDragged, setHasDragged] = useState(false);
+  const touchTimerRef = useRef(null);
+
   useEffect(() => {
     loadMemories();
   }, []);
@@ -92,7 +97,8 @@ export default function AllMemories() {
         .from('memories')
         .select('*')
         .eq('is_active', true)
-        .order('date', { ascending: false });
+        .order('date', { ascending: false })
+        .order('sort_order', { ascending: true });
 
       if (error) throw error;
       setMemories(data || []);
@@ -109,6 +115,121 @@ export default function AllMemories() {
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
     }
+  };
+
+  const saveOrderToDatabase = async (date) => {
+    const sameDayMems = memories.filter(m => m.date === date);
+    try {
+      const updates = sameDayMems.map((m, idx) => ({
+        id: m.id,
+        sort_order: idx
+      }));
+
+      await Promise.all(updates.map(u => 
+        supabase
+          .from('memories')
+          .update({ sort_order: u.sort_order })
+          .eq('id', u.id)
+      ));
+    } catch (error) {
+      console.error('Error saving reordered memories:', error);
+    }
+  };
+
+  const handleDragOverCard = (e, targetMemory) => {
+    e.preventDefault();
+    if (!draggedMemory || draggedMemory.id === targetMemory.id) return;
+    if (draggedMemory.date !== targetMemory.date) return;
+
+    // Swap in local state
+    setMemories(prev => {
+      const idx1 = prev.findIndex(m => m.id === draggedMemory.id);
+      const idx2 = prev.findIndex(m => m.id === targetMemory.id);
+      if (idx1 === -1 || idx2 === -1) return prev;
+
+      const newMems = [...prev];
+      const temp = newMems[idx1];
+      newMems[idx1] = newMems[idx2];
+      newMems[idx2] = temp;
+      return newMems;
+    });
+  };
+
+  const handleCardDragEnd = async () => {
+    if (draggedMemory) {
+      await saveOrderToDatabase(draggedMemory.date);
+    }
+    setDraggedMemory(null);
+  };
+
+  const handleTouchStartCard = (e, memory) => {
+    setHasDragged(false);
+    if (touchTimerRef.current) {
+      clearTimeout(touchTimerRef.current);
+    }
+    touchTimerRef.current = setTimeout(() => {
+      setTouchDraggingId(memory.id);
+      setDraggedMemory(memory);
+      setHasDragged(true);
+      if (navigator.vibrate) {
+        navigator.vibrate(40);
+      }
+    }, 500);
+  };
+
+  const handleTouchMoveCard = (e) => {
+    if (!touchDraggingId || !draggedMemory) return;
+
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+
+    const touch = e.touches[0];
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!element) return;
+
+    const cardEl = element.closest('.memory-card');
+    if (!cardEl) return;
+
+    const targetId = cardEl.getAttribute('data-id');
+    if (!targetId || targetId === touchDraggingId) return;
+
+    const targetMemory = memories.find(m => m.id === targetId);
+    if (!targetMemory) return;
+
+    if (draggedMemory.date !== targetMemory.date) return;
+
+    // Swap in local state
+    setMemories(prev => {
+      const idx1 = prev.findIndex(m => m.id === touchDraggingId);
+      const idx2 = prev.findIndex(m => m.id === targetId);
+      if (idx1 === -1 || idx2 === -1) return prev;
+
+      const newMems = [...prev];
+      const temp = newMems[idx1];
+      newMems[idx1] = newMems[idx2];
+      newMems[idx2] = temp;
+      return newMems;
+    });
+  };
+
+  const handleTouchEndCard = async () => {
+    if (touchTimerRef.current) {
+      clearTimeout(touchTimerRef.current);
+    }
+    if (touchDraggingId && draggedMemory) {
+      await saveOrderToDatabase(draggedMemory.date);
+    }
+    setTouchDraggingId(null);
+    setDraggedMemory(null);
+  };
+
+  const handleCardClick = (memory) => {
+    if (hasDragged) {
+      setHasDragged(false);
+      return;
+    }
+    navigate(`/memory/${memory.id}`, { state: { from: '/memories' } });
   };
 
   // Group memories by year
@@ -346,8 +467,19 @@ export default function AllMemories() {
                   return (
                     <div
                       key={memory.id}
-                      className="memory-card"
-                      onClick={() => navigate(`/memory/${memory.id}`, { state: { from: '/memories' } })}
+                      data-id={memory.id}
+                      className={`memory-card ${draggedMemory?.id === memory.id ? 'dragging' : ''} ${touchDraggingId === memory.id ? 'touch-dragging' : ''}`}
+                      draggable={!touchDraggingId}
+                      onDragStart={(e) => {
+                        setDraggedMemory(memory);
+                        e.dataTransfer.effectAllowed = 'move';
+                      }}
+                      onDragOver={(e) => handleDragOverCard(e, memory)}
+                      onDragEnd={handleCardDragEnd}
+                      onTouchStart={(e) => handleTouchStartCard(e, memory)}
+                      onTouchMove={handleTouchMoveCard}
+                      onTouchEnd={handleTouchEndCard}
+                      onClick={() => handleCardClick(memory)}
                     >
                       {imageUrl ? (
                         <img
