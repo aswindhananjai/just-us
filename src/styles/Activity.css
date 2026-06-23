@@ -233,9 +233,9 @@
   transform: translateY(-50%);
   width: 8px;
   height: 8px;
-  background: #FF69B4;
+  background: var(--color-error, #E0556F);
   border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.15);
+  box-shadow: 0 0 0 3px rgba(224, 85, 111, 0.15);
   flex-shrink: 0;
 }
 

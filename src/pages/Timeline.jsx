@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { MEMORY_CATEGORIES } from '../utils/constants';
 import { getCurrentUser, getUserData } from '../utils/auth';
+import { getUnreadActivityCount } from '../utils/activities';
 import BottomNav from '../components/BottomNav';
 import FloatingActionButton from '../components/FloatingActionButton';
 import '../styles/Timeline.css';
@@ -13,10 +14,17 @@ export default function Timeline() {
   const [groupedMemories, setGroupedMemories] = useState({});
   const [relationshipStartDate, setRelationshipStartDate] = useState('2026-05-21');
   const [profilePictures, setProfilePictures] = useState({});
+  const [unreadActivityCount, setUnreadActivityCount] = useState(0);
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
 
   const partnerName = currentUser === 'Aswin' ? 'Anu' : 'Aswin';
+
+  // Days counter easter egg state
+  const [daysTapCount, setDaysTapCount] = useState(0);
+  const [daysTapLastTime, setDaysTapLastTime] = useState(0);
+  const [showDaysOverlay, setShowDaysOverlay] = useState(false);
+  const [currentSeconds, setCurrentSeconds] = useState(0);
 
   // Get profile picture from state
   const getProfilePicture = (user) => {
@@ -26,6 +34,28 @@ export default function Timeline() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Update seconds counter every second when overlay is visible
+  useEffect(() => {
+    if (!showDaysOverlay) return;
+
+    // Calculate initial seconds
+    const start = new Date(relationshipStartDate);
+    const updateSeconds = () => {
+      const now = new Date();
+      const diffTime = now.getTime() - start.getTime();
+      const totalSeconds = Math.floor(diffTime / 1000);
+      setCurrentSeconds(totalSeconds);
+    };
+
+    // Update immediately
+    updateSeconds();
+
+    // Then update every second
+    const interval = setInterval(updateSeconds, 1000);
+
+    return () => clearInterval(interval);
+  }, [showDaysOverlay, relationshipStartDate]);
 
   const fetchData = async () => {
     try {
@@ -61,16 +91,18 @@ export default function Timeline() {
         setRelationshipStartDate(configData.start_date);
       }
 
-      // Fetch profile pictures from users table
-      const [currentUserData, partnerData] = await Promise.all([
+      // Fetch profile pictures and unread count
+      const [currentUserData, partnerData, unreadCount] = await Promise.all([
         getUserData(currentUser),
-        getUserData(partnerName)
+        getUserData(partnerName),
+        getUnreadActivityCount()
       ]);
 
       setProfilePictures({
         [currentUser]: currentUserData?.profile_picture_url || `/${currentUser.toLowerCase()}.png`,
         [partnerName]: partnerData?.profile_picture_url || `/${partnerName.toLowerCase()}.png`
       });
+      setUnreadActivityCount(unreadCount);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -88,6 +120,32 @@ export default function Timeline() {
     const diffTime = now.getTime() - start.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
     return diffDays;
+  };
+
+  const calculateTotalSeconds = () => {
+    const start = new Date(relationshipStartDate);
+    const now = new Date();
+    const diffTime = now.getTime() - start.getTime();
+    const totalSeconds = Math.floor(diffTime / 1000);
+    return totalSeconds.toLocaleString();
+  };
+
+  const handleDaysTap = () => {
+    const now = Date.now();
+    const newCount = now - daysTapLastTime > 2000 ? 1 : daysTapCount + 1;
+
+    if (newCount >= 5) {
+      setDaysTapCount(0);
+      setDaysTapLastTime(now);
+      setShowDaysOverlay(true);
+    } else {
+      setDaysTapCount(newCount);
+      setDaysTapLastTime(now);
+    }
+  };
+
+  const closeDaysOverlay = () => {
+    setShowDaysOverlay(false);
   };
 
   const formatRelationshipDate = () => {
@@ -195,12 +253,47 @@ export default function Timeline() {
         </div>
 
         {/* Counter */}
-        <div className="days-counter">
+        <div className="days-counter" onClick={handleDaysTap} style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}>
           <div className="days-number-large">{calculateDaysTogether()}</div>
           <div className="days-label-upper">days together</div>
           <div className="relationship-meta">{partnerName} & {currentUser} · since {formatRelationshipDate()}</div>
         </div>
       </div>
+
+      {/* Days counter easter egg overlay */}
+      {showDaysOverlay && (
+        <div className="days-overlay">
+          <div className="days-overlay-confetti">
+            {[...Array(20)].map((_, i) => (
+              <div
+                key={i}
+                className={`confetti-piece ${i % 3 === 0 ? 'circle' : 'rect'}`}
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 0.7}s`,
+                  animationDuration: `${2.5 + Math.random() * 0.5}s`,
+                  background: ['#FFD166', '#2D6FE0', '#FF7A93', '#06D6A0', '#B5838D'][Math.floor(Math.random() * 5)]
+                }}
+              />
+            ))}
+          </div>
+          <button className="days-overlay-close" onClick={closeDaysOverlay}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M6 6l12 12M18 6 6 18"/>
+            </svg>
+          </button>
+          <div className="days-overlay-card">
+            <div className="days-overlay-label">together for</div>
+            <div className="days-overlay-number">{calculateDaysTogether()}</div>
+            <div className="days-overlay-unit">days</div>
+            <div className="days-overlay-divider"></div>
+            <div className="days-overlay-sublabel">that's</div>
+            <div className="days-overlay-seconds">{currentSeconds.toLocaleString()}</div>
+            <div className="days-overlay-seconds-label">seconds ↑</div>
+            <div className="days-overlay-message">Still my favourite person ❤️</div>
+          </div>
+        </div>
+      )}
 
       {/* White sheet below hero */}
       <div className="memories-section">
@@ -308,9 +401,12 @@ export default function Timeline() {
         </button>
 
         <button className="nav-item-timeline inactive" onClick={() => navigate('/settings')}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
-          </svg>
+          <div className="nav-icon-wrapper" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+            </svg>
+            {unreadActivityCount > 0 && <div className="notification-dot"></div>}
+          </div>
           <span>Settings</span>
         </button>
       </div>

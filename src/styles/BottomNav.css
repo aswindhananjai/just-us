@@ -52,8 +52,8 @@
   right: -4px;
   width: 8px;
   height: 8px;
-  background: #ff69b4;
+  background: var(--color-error, #E0556F);
   border-radius: 50%;
   border: 2px solid white;
-  box-shadow: 0 0 0 1px rgba(255, 105, 180, 0.3);
+  box-shadow: 0 0 0 1px rgba(224, 85, 111, 0.3);
 }

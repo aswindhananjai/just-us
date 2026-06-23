@@ -190,7 +190,7 @@
 }
 
 .activity-badge {
-  background: #ff69b4;
+  background: var(--color-error, #E0556F);
   color: white;
   font-size: 12px;
   font-weight: 700;

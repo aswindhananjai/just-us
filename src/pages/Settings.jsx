@@ -188,7 +188,6 @@ export default function Settings() {
 
           {/* Activity Section */}
           <div className="settings-section">
-            <div className="section-label">ACTIVITY</div>
             <div className="activity-link-card" onClick={() => navigate('/activity')}>
               <div className="activity-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D6FE0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -198,7 +197,6 @@ export default function Settings() {
               </div>
               <div className="activity-text">
                 <div className="activity-label">Activity</div>
-                <div className="activity-subtitle">View your shared activity</div>
               </div>
               <div className="activity-badge-wrapper">
                 {unreadActivityCount > 0 && (
@@ -213,7 +211,6 @@ export default function Settings() {
 
           {/* Profile Section */}
           <div className="settings-section">
-            <div className="section-label">PROFILE</div>
             <div className="profile-picture-card">
               <div className="profile-icon">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D6FE0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -275,9 +272,12 @@ export default function Settings() {
         </button>
 
         <button className="nav-item-settings active">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
-          </svg>
+          <div className="nav-icon-wrapper" style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+            </svg>
+            {unreadActivityCount > 0 && <div className="notification-dot"></div>}
+          </div>
           <span>Settings</span>
         </button>
       </div>
