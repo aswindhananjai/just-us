@@ -9,18 +9,14 @@ export default function SurpriseCard({ thought, onClose }) {
   const [hasIncrementedView, setHasIncrementedView] = useState(false);
 
   const handleCardClick = async () => {
-    if (!cardFlipped) {
-      // First tap - flip the card
-      setCardFlipped(true);
+    // Toggle flip state
+    const willFlip = !cardFlipped;
+    setCardFlipped(willFlip);
 
-      // Increment view count only once when revealed
-      if (!hasIncrementedView && thought?.id) {
-        await incrementViewCount(thought.id);
-        setHasIncrementedView(true);
-      }
-    } else {
-      // Second tap - close the overlay
-      onClose();
+    // Increment view count only once when revealed for the first time
+    if (willFlip && !hasIncrementedView && thought?.id) {
+      await incrementViewCount(thought.id);
+      setHasIncrementedView(true);
     }
   };
 
@@ -61,9 +57,6 @@ export default function SurpriseCard({ thought, onClose }) {
 
           {/* Back face (revealed) */}
           <div className="surprise-card-face surprise-card-back">
-            <svg className="surprise-heart-icon" width="40" height="40" viewBox="0 0 24 24" fill="none">
-              <path d="M12 21s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.6 4.5 4.5 0 0 1 19.5 11c0 5.4-7.5 10-7.5 10Z" fill="#FF7A93"/>
-            </svg>
             <div className="surprise-card-message">
               {thought.message}
             </div>
@@ -71,7 +64,7 @@ export default function SurpriseCard({ thought, onClose }) {
               — {thought.created_by} 💙
             </div>
             <div className="surprise-card-hint">
-              tap to close
+              tap to hide
             </div>
           </div>
         </div>

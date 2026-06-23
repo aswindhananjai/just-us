@@ -92,26 +92,34 @@
   box-shadow: 0 0 0 3px rgba(45, 111, 224, 0.1);
 }
 
+.add-thought-textarea.error {
+  border-color: #E0556F;
+  background: #FFF5F7;
+}
+
+.add-thought-textarea.error:focus {
+  box-shadow: 0 0 0 3px rgba(224, 85, 111, 0.1);
+}
+
 .add-thought-textarea::placeholder {
   color: #9AA7BD;
 }
 
+.error-message {
+  font-size: 12px;
+  color: #E0556F;
+  font-weight: 600;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .add-thought-footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
   margin-top: 10px;
-}
-
-.word-count {
-  font-size: 12px;
-  font-weight: 600;
-  color: #9AA7BD;
-  transition: color 0.2s;
-}
-
-.word-count.error {
-  color: #E0556F;
 }
 
 .add-thought-button {
@@ -234,44 +242,15 @@
   color: #37475F;
   margin-bottom: 10px;
   font-weight: 500;
-}
-
-.thought-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-}
-
-.thought-stats {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #9AA7BD;
-  font-weight: 600;
-}
-
-.thought-stat {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.thought-stat-divider {
-  color: #C7D6EE;
-}
-
-.thought-date {
-  font-size: 11px;
-  color: #C7D6EE;
-  font-weight: 600;
+  padding-right: 70px;
 }
 
 .thought-actions {
+  position: absolute;
+  top: 14px;
+  right: 14px;
   display: flex;
   gap: 8px;
-  justify-content: flex-end;
 }
 
 .edit-thought-button,
@@ -322,17 +301,27 @@
   min-height: 90px;
   line-height: 1.5;
   margin-bottom: 10px;
+  transition: all 0.2s;
 }
 
-.edit-thought-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.edit-thought-textarea:focus {
+  border-color: #2D6FE0;
+  box-shadow: 0 0 0 3px rgba(45, 111, 224, 0.1);
+}
+
+.edit-thought-textarea.error {
+  border-color: #E0556F;
+  background: #FFF5F7;
+}
+
+.edit-thought-textarea.error:focus {
+  box-shadow: 0 0 0 3px rgba(224, 85, 111, 0.1);
 }
 
 .edit-thought-actions {
   display: flex;
   gap: 8px;
+  justify-content: flex-end;
 }
 
 .cancel-edit-button,
@@ -370,6 +359,136 @@
 
 .save-edit-button:disabled {
   opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Load More */
+.load-more-container {
+  padding: 8px 0 20px;
+}
+
+.load-more-button {
+  width: 100%;
+  font-size: 14px;
+  font-weight: 700;
+  color: #2D6FE0;
+  background: #F4F8FE;
+  border: 2px dashed #E8EEF7;
+  border-radius: 16px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.load-more-button:active {
+  background: #E8EEF7;
+  border-color: #2D6FE0;
+}
+
+/* Delete Modal */
+.delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 25, 52, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 300;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  animation: overlayFade 0.2s ease;
+}
+
+@keyframes overlayFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.delete-modal {
+  background: #fff;
+  border-radius: 26px 26px 16px 16px;
+  padding: 28px 24px 24px;
+  width: 100%;
+  max-width: 480px;
+  text-align: center;
+  animation: modalSlide 0.22s ease;
+}
+
+@keyframes modalSlide {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.delete-modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #FFF0F3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.delete-modal-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #14233B;
+  margin-bottom: 8px;
+  font-family: 'Fredoka', sans-serif;
+}
+
+.delete-modal-msg {
+  font-size: 14px;
+  color: #6B7A93;
+  line-height: 1.55;
+  margin-bottom: 24px;
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.delete-modal-cancel {
+  flex: 1;
+  height: 50px;
+  border-radius: 14px;
+  border: 1.5px solid #E8EEF7;
+  background: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  color: #14233B;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.delete-modal-cancel:active {
+  background: #F4F8FE;
+}
+
+.delete-modal-confirm {
+  flex: 1;
+  height: 50px;
+  border-radius: 14px;
+  border: none;
+  background: #E0556F;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 6px 16px rgba(224, 85, 111, 0.35);
+}
+
+.delete-modal-confirm:active:not(:disabled) {
+  opacity: 0.85;
+}
+
+.delete-modal-confirm:disabled,
+.delete-modal-cancel:disabled {
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
