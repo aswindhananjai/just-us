@@ -65,6 +65,25 @@ export default function AllMemories() {
     loadMemories();
   }, []);
 
+  // Restore scroll position after memories have loaded
+  useEffect(() => {
+    if (!loading && memories.length > 0 && scrollContainerRef.current) {
+      const savedScrollPos = sessionStorage.getItem('all_memories_scroll_pos');
+      if (savedScrollPos) {
+        const parsed = parseInt(savedScrollPos, 10);
+        if (!isNaN(parsed)) {
+          scrollContainerRef.current.scrollTop = parsed;
+          const timer = setTimeout(() => {
+            if (scrollContainerRef.current) {
+              scrollContainerRef.current.scrollTop = parsed;
+            }
+          }, 100);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+  }, [loading, memories]);
+
   const loadMemories = async () => {
     try {
       setLoading(true);
@@ -81,6 +100,14 @@ export default function AllMemories() {
       console.error('Error loading memories:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFilterChange = (newFilter) => {
+    setFilter(newFilter);
+    sessionStorage.setItem('all_memories_scroll_pos', '0');
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
     }
   };
 
@@ -144,9 +171,13 @@ export default function AllMemories() {
   // Track active year on scroll and update handle position
   useEffect(() => {
     const handleScroll = () => {
-      if (!scrollContainerRef.current || isDragging) return;
+      if (!scrollContainerRef.current) return;
 
       const scrollTop = scrollContainerRef.current.scrollTop;
+      sessionStorage.setItem('all_memories_scroll_pos', scrollTop.toString());
+
+      if (isDragging) return;
+
       const scrollHeight = scrollContainerRef.current.scrollHeight - scrollContainerRef.current.clientHeight;
       let currentYear = null;
       let currentYearIndex = 0;
@@ -265,7 +296,7 @@ export default function AllMemories() {
           <div className="filter-chips">
             <button
               className={`filter-chip ${filter === 'all' ? 'active' : ''}`}
-              onClick={() => setFilter('all')}
+              onClick={() => handleFilterChange('all')}
             >
               All
             </button>
@@ -273,7 +304,7 @@ export default function AllMemories() {
               <button
                 key={cat.id}
                 className={`filter-chip ${filter === cat.id ? 'active' : ''}`}
-                onClick={() => setFilter(cat.id)}
+                onClick={() => handleFilterChange(cat.id)}
               >
                 <span className="filter-icon">{cat.icon}</span>
                 <span>{cat.name}</span>
@@ -316,7 +347,7 @@ export default function AllMemories() {
                     <div
                       key={memory.id}
                       className="memory-card"
-                      onClick={() => navigate(`/memory/${memory.id}`)}
+                      onClick={() => navigate(`/memory/${memory.id}`, { state: { from: '/memories' } })}
                     >
                       {imageUrl ? (
                         <img

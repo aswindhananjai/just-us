@@ -1,20 +1,63 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { MEMORY_CATEGORIES } from '../utils/constants';
+import { getCurrentUser } from '../utils/auth';
 import '../styles/MemoryDetail.css';
 
 export default function MemoryDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [memory, setMemory] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const handleBack = () => {
+    if (location.state?.from) {
+      navigate(location.state.from);
+    } else {
+      navigate('/memories');
+    }
+  };
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const menuRef = useRef(null);
   const carouselRef = useRef(null);
+
+  const currentUser = getCurrentUser();
+  const [showVersionSheet, setShowVersionSheet] = useState(false);
+  const [versionText, setVersionText] = useState('');
+  const [savingVersion, setSavingVersion] = useState(false);
+
+  const openVersionSheet = () => {
+    setVersionText(memory?.partner_description || '');
+    setMenuOpen(false);
+    setShowVersionSheet(true);
+  };
+
+  const handleSaveVersion = async () => {
+    setSavingVersion(true);
+    try {
+      const { error } = await supabase
+        .from('memories')
+        .update({
+          partner_description: versionText,
+          updated_by: currentUser,
+        })
+        .eq('id', id);
+
+      if (error) throw error;
+      await fetchMemory();
+      setShowVersionSheet(false);
+    } catch (error) {
+      console.error('Error saving partner version:', error);
+      alert('Failed to save your version');
+    } finally {
+      setSavingVersion(false);
+    }
+  };
 
   const handleScroll = (e) => {
     const scrollLeft = e.target.scrollLeft;
@@ -81,7 +124,7 @@ export default function MemoryDetail() {
 
   const handleEdit = () => {
     setMenuOpen(false);
-    navigate(`/edit/${id}`);
+    navigate(`/edit/${id}`, { state: { from: location.state?.from } });
   };
 
   const handleDeleteConfirm = async () => {
@@ -129,6 +172,10 @@ export default function MemoryDetail() {
   const hasImage = imagesList.length > 0;
   const category = getCategoryInfo(memory.category);
 
+  const isCreator = currentUser === memory.created_by;
+  const partnerName = memory.created_by === 'Aswin' ? 'Anu' : 'Aswin';
+  const hasPartnerNote = Boolean(memory.partner_description);
+
   return (
     <div className="memory-detail-page">
       {/* Full-bleed hero — only when image exists */}
@@ -170,7 +217,7 @@ export default function MemoryDetail() {
 
           {/* Overlay controls */}
           <div className="detail-overlay-controls">
-            <button className="detail-ctrl-btn" onClick={() => navigate(-1)}>
+            <button className="detail-ctrl-btn" onClick={handleBack}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7" />
               </svg>
@@ -185,6 +232,17 @@ export default function MemoryDetail() {
               </button>
               {menuOpen && (
                 <div className="detail-dropdown">
+                  {!isCreator && (
+                    <>
+                      <button className="detail-dropdown-item" onClick={openVersionSheet}>
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D6FE0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                        </svg>
+                        <span>{hasPartnerNote ? 'Edit my note' : 'Add my note'}</span>
+                      </button>
+                      <div className="detail-dropdown-divider" />
+                    </>
+                  )}
                   <button className="detail-dropdown-item" onClick={handleEdit}>
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D6FE0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -208,7 +266,7 @@ export default function MemoryDetail() {
       ) : (
         /* Plain header when no image */
         <div className="detail-plain-header">
-          <button className="detail-plain-back" onClick={() => navigate(-1)}>
+          <button className="detail-plain-back" onClick={handleBack}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7" />
             </svg>
@@ -223,6 +281,17 @@ export default function MemoryDetail() {
             </button>
             {menuOpen && (
               <div className="detail-dropdown">
+                {!isCreator && (
+                  <>
+                    <button className="detail-dropdown-item" onClick={openVersionSheet}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D6FE0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                      </svg>
+                      <span>{hasPartnerNote ? 'Edit my note' : 'Add my note'}</span>
+                    </button>
+                    <div className="detail-dropdown-divider" />
+                  </>
+                )}
                 <button className="detail-dropdown-item" onClick={handleEdit}>
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2D6FE0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
@@ -280,6 +349,36 @@ export default function MemoryDetail() {
             <p>{memory.description}</p>
           </div>
         )}
+
+        {/* Partner description */}
+        {hasPartnerNote ? (
+          <div className="detail-partner-description">
+            <div className="partner-description-header">
+              <span className="partner-heading">Here is what {partnerName} has to say</span>
+              {!isCreator && (
+                <button className="partner-edit-btn" onClick={openVersionSheet}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
+                  <span>Edit</span>
+                </button>
+              )}
+            </div>
+            <p>{memory.partner_description}</p>
+          </div>
+        ) : (
+          !isCreator && (
+            <div className="detail-add-partner-version">
+              <button className="add-version-btn" onClick={openVersionSheet}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                Add your version
+              </button>
+            </div>
+          )
+        )}
       </div>
 
       {/* Delete confirmation modal */}
@@ -310,6 +409,39 @@ export default function MemoryDetail() {
                 {deleting ? 'Deleting…' : 'Delete'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Partner version bottom sheet */}
+      {showVersionSheet && (
+        <div className="bottom-sheet-overlay" onClick={() => !savingVersion && setShowVersionSheet(false)}>
+          <div className="bottom-sheet" onClick={e => e.stopPropagation()}>
+            <div className="bottom-sheet-header">
+              <h3 className="bottom-sheet-title">{hasPartnerNote ? 'Edit your version' : 'Add your version'}</h3>
+              <button className="bottom-sheet-close" onClick={() => setShowVersionSheet(false)} disabled={savingVersion}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+            <textarea
+              className="bottom-sheet-textarea"
+              value={versionText}
+              onChange={e => setVersionText(e.target.value)}
+              placeholder="Write your side of the story..."
+              rows="5"
+              disabled={savingVersion}
+              autoFocus
+            />
+            <button
+              className="bottom-sheet-save-btn"
+              onClick={handleSaveVersion}
+              disabled={savingVersion || !versionText.trim()}
+            >
+              {savingVersion ? 'Saving...' : 'Save version'}
+            </button>
           </div>
         </div>
       )}

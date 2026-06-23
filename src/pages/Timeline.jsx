@@ -222,7 +222,7 @@ export default function Timeline() {
                 <div
                   key={memory.id}
                   className={`big-memory-card ${!previewUrl ? 'no-image' : ''}`}
-                  onClick={() => navigate(`/memory/${memory.id}`)}
+                  onClick={() => navigate(`/memory/${memory.id}`, { state: { from: '/' } })}
                 >
                   {previewUrl
                     ? <img src={previewUrl} alt={memory.title} />

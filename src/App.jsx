@@ -10,7 +10,6 @@ import Settings from './pages/Settings';
 import AddMemory from './pages/AddMemory';
 import MemoryDetail from './pages/MemoryDetail';
 import AllMemories from './pages/AllMemories';
-import DebugFCM from './pages/DebugFCM';
 
 function ProtectedRoute({ children }) {
   const [authenticated, setAuthenticated] = useState(null);
@@ -143,14 +142,6 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <AddMemory />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/debug-fcm"
-          element={
-            <ProtectedRoute>
-              <DebugFCM />
             </ProtectedRoute>
           }
         />

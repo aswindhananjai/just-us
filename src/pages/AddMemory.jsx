@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { uploadImage } from '../utils/cloudinary';
 import { getCurrentUser } from '../utils/auth';
@@ -12,10 +12,19 @@ export default function AddMemory() {
   const navigate = useNavigate();
   const { id } = useParams(); // present when editing
   const isEditMode = Boolean(id);
+  const location = useLocation();
+  const currentUser = getCurrentUser();
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(isEditMode);
   const [images, setImages] = useState([]);
+  const [partnerDescription, setPartnerDescription] = useState('');
+  const [memoryCreator, setMemoryCreator] = useState(null);
+
+  const isCreator = !isEditMode || (memoryCreator === currentUser);
+  const otherPersonName = isEditMode
+    ? (memoryCreator === 'Aswin' ? 'Anu' : 'Aswin')
+    : (currentUser === 'Aswin' ? 'Anu' : 'Aswin');
   const [dragIndex, setDragIndex] = useState(null);
   const [dragOverIndex, setDragOverIndex] = useState(null);
   const fileInputRef = useRef(null);
@@ -50,6 +59,8 @@ export default function AddMemory() {
           description: data.description || '',
           location: data.location || '',
         });
+        setPartnerDescription(data.partner_description || '');
+        setMemoryCreator(data.created_by);
         
         if (data.image_url) {
           let urls = [];
@@ -226,20 +237,38 @@ export default function AddMemory() {
           .from('memories')
           .update({
             ...formData,
+            partner_description: partnerDescription,
             image_url: imageUrl,
             updated_by: currentUser,
           })
           .eq('id', id);
         if (error) throw error;
       } else {
-        // Insert new memory
-        const { error } = await supabase.from('memories').insert([{
+        // Insert new memory and return the created record to get the id
+        const { data, error } = await supabase.from('memories').insert([{
           ...formData,
           image_url: imageUrl,
           created_by: currentUser,
           updated_by: currentUser,
-        }]);
+        }]).select();
         if (error) throw error;
+
+        // If insert succeeded and returned data, land on detail page
+        if (data && data[0]) {
+          if (imageUploadWarning) {
+            alert('Note: Some photos could not be uploaded — check your Cloudinary configuration.');
+          }
+          // Send notification to partner (only for new memories, not edits)
+          try {
+            await sendMemoryAddedNotification(formData.title, currentUser);
+          } catch (error) {
+            console.error('Error sending notification:', error);
+          }
+          // Go to memory detail page with replace: true to remove /add from history,
+          // and state: { from: '/memories' } so back button takes user to see all memories page.
+          navigate(`/memory/${data[0].id}`, { replace: true, state: { from: '/memories' } });
+          return;
+        }
       }
 
       if (imageUploadWarning) {
@@ -256,8 +285,17 @@ export default function AddMemory() {
         }
       }
 
-      // Go back to where we came from
-      navigate(isEditMode ? `/memory/${id}` : '/');
+      // Go back to where we came from or detail page
+      if (isEditMode) {
+        // Go back, but fallback to detail page if they refreshed or loaded directly
+        if (window.history.state && window.history.state.idx > 0) {
+          navigate(-1);
+        } else {
+          navigate(`/memory/${id}`, { replace: true, state: { from: location.state?.from || '/memories' } });
+        }
+      } else {
+        navigate('/', { replace: true });
+      }
     } catch (error) {
       console.error('Error saving memory:', error);
       alert(`Failed to save memory: ${error.message || 'Please try again.'}`);
@@ -419,10 +457,10 @@ export default function AddMemory() {
             </div>
           </div>
 
-          {/* Note */}
+          {/* Note (Creator's Version) */}
           <div className="form-section">
             <div className="form-label">
-              Note <span className="label-optional">· optional</span>
+              {isCreator ? 'Note' : `${otherPersonName}'s version`} <span className="label-optional">· optional</span>
             </div>
             <textarea
               name="description"
@@ -432,6 +470,22 @@ export default function AddMemory() {
               rows="4"
             />
           </div>
+
+          {/* Partner's Version (Only shown if it already exists in database) */}
+          {isEditMode && partnerDescription && (
+            <div className="form-section">
+              <div className="form-label">
+                {isCreator ? `${otherPersonName}'s version` : 'Your version'} <span className="label-optional">· optional</span>
+              </div>
+              <textarea
+                name="partnerDescription"
+                value={partnerDescription}
+                onChange={(e) => setPartnerDescription(e.target.value)}
+                placeholder="Partner's perspective of this moment…"
+                rows="4"
+              />
+            </div>
+          )}
         </form>
       </div>
 

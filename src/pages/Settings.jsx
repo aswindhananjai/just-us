@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { logout, getCurrentUser, getUserData, updateUserProfilePicture } from '../utils/auth';
 import { uploadImage } from '../utils/cloudinary';
 import { supabase } from '../utils/supabase';
-import { requestNotificationPermission } from '../utils/notifications';
 import BottomNav from '../components/BottomNav';
 import '../styles/Settings.css';
 
@@ -14,15 +13,12 @@ export default function Settings() {
   const [profilePicture, setProfilePicture] = useState(`/${currentUser.toLowerCase()}.png`);
   const [partnerPicture, setPartnerPicture] = useState(null);
   const [daysTogether, setDaysTogether] = useState(0);
-  const [fcmTokens, setFcmTokens] = useState({ current: null, partner: null });
-  const [requestingPermission, setRequestingPermission] = useState(false);
 
   const partnerName = currentUser === 'Aswin' ? 'Anu' : 'Aswin';
 
   useEffect(() => {
     loadUserData();
     loadRelationshipData();
-    loadFCMTokens();
   }, []);
 
   const loadUserData = async () => {
@@ -58,42 +54,6 @@ export default function Settings() {
       }
     } catch (error) {
       console.error('Error loading relationship data:', error);
-    }
-  };
-
-  const loadFCMTokens = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('name, fcm_token')
-        .in('name', [currentUser, partnerName]);
-
-      if (error) throw error;
-
-      const tokens = { current: null, partner: null };
-      data?.forEach(user => {
-        if (user.name === currentUser) {
-          tokens.current = user.fcm_token;
-        } else {
-          tokens.partner = user.fcm_token;
-        }
-      });
-      setFcmTokens(tokens);
-    } catch (error) {
-      console.error('Error loading FCM tokens:', error);
-    }
-  };
-
-  const handleRequestNotificationPermission = async () => {
-    setRequestingPermission(true);
-    try {
-      await requestNotificationPermission();
-      // Reload tokens after a delay
-      setTimeout(loadFCMTokens, 1000);
-    } catch (error) {
-      console.error('Error requesting permission:', error);
-    } finally {
-      setRequestingPermission(false);
     }
   };
 
@@ -199,38 +159,6 @@ export default function Settings() {
                 />
                 {uploading ? 'Uploading...' : 'Change'}
               </label>
-            </div>
-          </div>
-
-          {/* Notifications Section */}
-          <div className="settings-section">
-            <div className="section-label">NOTIFICATIONS</div>
-            <div className="notification-status-card">
-              <div className="notification-status-row">
-                <div className="notification-status-label">Your notifications:</div>
-                <div className={`notification-status-badge ${fcmTokens.current ? 'enabled' : 'disabled'}`}>
-                  {fcmTokens.current ? '✓ Enabled' : '✗ Disabled'}
-                </div>
-              </div>
-              <div className="notification-status-row">
-                <div className="notification-status-label">{partnerName}'s notifications:</div>
-                <div className={`notification-status-badge ${fcmTokens.partner ? 'enabled' : 'disabled'}`}>
-                  {fcmTokens.partner ? '✓ Enabled' : '✗ Disabled'}
-                </div>
-              </div>
-              {!fcmTokens.current && (
-                <button
-                  className="enable-notifications-btn"
-                  onClick={handleRequestNotificationPermission}
-                  disabled={requestingPermission}
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                  </svg>
-                  {requestingPermission ? 'Requesting...' : 'Enable notifications'}
-                </button>
-              )}
             </div>
           </div>
 
