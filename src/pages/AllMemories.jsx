@@ -162,6 +162,65 @@ export default function AllMemories() {
     setDraggedMemory(null);
   };
 
+  // Global effect for touch reordering when touchDraggingId is active
+  useEffect(() => {
+    if (!touchDraggingId) return;
+
+    const handleGlobalTouchMove = (e) => {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+
+      const touch = e.touches[0];
+      const element = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (!element) return;
+
+      const cardEl = element.closest('.memory-card');
+      if (!cardEl) return;
+
+      const targetId = cardEl.getAttribute('data-id');
+      if (!targetId || targetId === touchDraggingId) return;
+
+      const targetMemory = memories.find(m => m.id === targetId);
+      const draggingMemoryObj = memories.find(m => m.id === touchDraggingId);
+      if (!targetMemory || !draggingMemoryObj) return;
+
+      if (draggingMemoryObj.date !== targetMemory.date) return;
+
+      // Swap in local state
+      setMemories(prev => {
+        const idx1 = prev.findIndex(m => m.id === touchDraggingId);
+        const idx2 = prev.findIndex(m => m.id === targetId);
+        if (idx1 === -1 || idx2 === -1) return prev;
+
+        const newMems = [...prev];
+        const temp = newMems[idx1];
+        newMems[idx1] = newMems[idx2];
+        newMems[idx2] = temp;
+        return newMems;
+      });
+    };
+
+    const handleGlobalTouchEnd = async () => {
+      const draggingMemoryObj = memories.find(m => m.id === touchDraggingId);
+      if (draggingMemoryObj) {
+        await saveOrderToDatabase(draggingMemoryObj.date);
+      }
+      setTouchDraggingId(null);
+      setDraggedMemory(null);
+    };
+
+    window.addEventListener('touchmove', handleGlobalTouchMove, { passive: false });
+    window.addEventListener('touchend', handleGlobalTouchEnd);
+    window.addEventListener('touchcancel', handleGlobalTouchEnd);
+
+    return () => {
+      window.removeEventListener('touchmove', handleGlobalTouchMove);
+      window.removeEventListener('touchend', handleGlobalTouchEnd);
+      window.removeEventListener('touchcancel', handleGlobalTouchEnd);
+    };
+  }, [touchDraggingId, memories]);
+
   const handleTouchStartCard = (e, memory) => {
     setHasDragged(false);
     if (touchTimerRef.current) {
@@ -177,51 +236,18 @@ export default function AllMemories() {
     }, 500);
   };
 
-  const handleTouchMoveCard = (e) => {
-    if (!touchDraggingId || !draggedMemory) return;
-
-    if (e.cancelable) {
-      e.preventDefault();
+  const handleTouchMoveCardLocal = (e) => {
+    if (!touchDraggingId) {
+      if (touchTimerRef.current) {
+        clearTimeout(touchTimerRef.current);
+      }
     }
-
-    const touch = e.touches[0];
-    const element = document.elementFromPoint(touch.clientX, touch.clientY);
-    if (!element) return;
-
-    const cardEl = element.closest('.memory-card');
-    if (!cardEl) return;
-
-    const targetId = cardEl.getAttribute('data-id');
-    if (!targetId || targetId === touchDraggingId) return;
-
-    const targetMemory = memories.find(m => m.id === targetId);
-    if (!targetMemory) return;
-
-    if (draggedMemory.date !== targetMemory.date) return;
-
-    // Swap in local state
-    setMemories(prev => {
-      const idx1 = prev.findIndex(m => m.id === touchDraggingId);
-      const idx2 = prev.findIndex(m => m.id === targetId);
-      if (idx1 === -1 || idx2 === -1) return prev;
-
-      const newMems = [...prev];
-      const temp = newMems[idx1];
-      newMems[idx1] = newMems[idx2];
-      newMems[idx2] = temp;
-      return newMems;
-    });
   };
 
-  const handleTouchEndCard = async () => {
+  const handleTouchEndCardLocal = () => {
     if (touchTimerRef.current) {
       clearTimeout(touchTimerRef.current);
     }
-    if (touchDraggingId && draggedMemory) {
-      await saveOrderToDatabase(draggedMemory.date);
-    }
-    setTouchDraggingId(null);
-    setDraggedMemory(null);
   };
 
   const handleCardClick = (memory) => {
@@ -477,8 +503,8 @@ export default function AllMemories() {
                       onDragOver={(e) => handleDragOverCard(e, memory)}
                       onDragEnd={handleCardDragEnd}
                       onTouchStart={(e) => handleTouchStartCard(e, memory)}
-                      onTouchMove={handleTouchMoveCard}
-                      onTouchEnd={handleTouchEndCard}
+                      onTouchMove={handleTouchMoveCardLocal}
+                      onTouchEnd={handleTouchEndCardLocal}
                       onClick={() => handleCardClick(memory)}
                     >
                       {imageUrl ? (
