@@ -5,6 +5,7 @@ import { uploadImage } from '../utils/cloudinary';
 import { getCurrentUser } from '../utils/auth';
 import { MEMORY_CATEGORIES } from '../utils/constants';
 import { sendMemoryAddedNotification } from '../utils/notifications';
+import { createActivity } from '../utils/activities';
 import { useKeyboardScroll } from '../hooks/useKeyboardScroll';
 import '../styles/AddMemory.css';
 
@@ -243,6 +244,9 @@ export default function AddMemory() {
           })
           .eq('id', id);
         if (error) throw error;
+
+        // Create activity for memory update
+        await createActivity(id, 'updated', currentUser, formData.title, formData.category);
       } else {
         // Insert new memory and return the created record to get the id
         const { data, error } = await supabase.from('memories').insert([{
@@ -258,6 +262,10 @@ export default function AddMemory() {
           if (imageUploadWarning) {
             alert('Note: Some photos could not be uploaded — check your Cloudinary configuration.');
           }
+
+          // Create activity for memory creation
+          await createActivity(data[0].id, 'created', currentUser, formData.title, formData.category);
+
           // Send notification to partner (only for new memories, not edits)
           try {
             await sendMemoryAddedNotification(formData.title, currentUser);

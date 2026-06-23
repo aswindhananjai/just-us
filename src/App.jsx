@@ -10,6 +10,7 @@ import Settings from './pages/Settings';
 import AddMemory from './pages/AddMemory';
 import MemoryDetail from './pages/MemoryDetail';
 import AllMemories from './pages/AllMemories';
+import Activity from './pages/Activity';
 
 function ProtectedRoute({ children }) {
   const [authenticated, setAuthenticated] = useState(null);
@@ -131,6 +132,14 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <Settings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/activity"
+          element={
+            <ProtectedRoute>
+              <Activity />
             </ProtectedRoute>
           }
         />

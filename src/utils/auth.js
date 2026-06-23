@@ -103,3 +103,19 @@ export const logout = () => {
   setAuthenticated(false);
   localStorage.removeItem(CURRENT_USER_KEY);
 };
+
+// Log passcode entry to usage_log (one row per user per local date)
+export const logUsage = async (userName) => {
+  try {
+    // Use local date so IST date is recorded, not UTC server date
+    const localDate = new Date().toLocaleDateString('en-CA'); // gives YYYY-MM-DD
+    await supabase.rpc('log_app_usage', {
+      p_user_name: userName,
+      p_date: localDate,
+    });
+  } catch (error) {
+    // Non-critical — silently ignore failures
+    console.error('Failed to log usage:', error);
+  }
+};
+

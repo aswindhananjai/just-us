@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { verifyPasscode, setAuthenticated } from '../utils/auth';
+import { verifyPasscode, setAuthenticated, logUsage } from '../utils/auth';
 import '../styles/PasscodeLock.css';
 
 export default function PasscodeLock({ onSuccess }) {
@@ -30,6 +30,8 @@ export default function PasscodeLock({ onSuccess }) {
 
     if (userName) {
       setAuthenticated(true, userName);
+      // Log this passcode entry to usage_log (fire and forget)
+      logUsage(userName);
       if (onSuccess) {
         onSuccess();
       } else {

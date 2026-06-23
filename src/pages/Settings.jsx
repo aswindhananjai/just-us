@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { logout, getCurrentUser, getUserData, updateUserProfilePicture } from '../utils/auth';
 import { uploadImage } from '../utils/cloudinary';
 import { supabase } from '../utils/supabase';
+import { getUnreadActivityCount } from '../utils/activities';
 import BottomNav from '../components/BottomNav';
 import '../styles/Settings.css';
 
@@ -13,13 +14,20 @@ export default function Settings() {
   const [profilePicture, setProfilePicture] = useState(`/${currentUser.toLowerCase()}.png`);
   const [partnerPicture, setPartnerPicture] = useState(null);
   const [daysTogether, setDaysTogether] = useState(0);
+  const [unreadActivityCount, setUnreadActivityCount] = useState(0);
 
   const partnerName = currentUser === 'Aswin' ? 'Anu' : 'Aswin';
 
   useEffect(() => {
     loadUserData();
     loadRelationshipData();
+    loadUnreadCount();
   }, []);
+
+  const loadUnreadCount = async () => {
+    const count = await getUnreadActivityCount();
+    setUnreadActivityCount(count);
+  };
 
   const loadUserData = async () => {
     const [currentUserData, partnerData] = await Promise.all([
@@ -133,6 +141,31 @@ export default function Settings() {
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path d="M12 21s-7.5-4.6-7.5-10A4.5 4.5 0 0 1 12 7.6 4.5 4.5 0 0 1 19.5 11c0 5.4-7.5 10-7.5 10Z" fill="#FF7A93" />
             </svg>
+          </div>
+
+          {/* Activity Section */}
+          <div className="settings-section">
+            <div className="section-label">ACTIVITY</div>
+            <div className="activity-card" onClick={() => navigate('/activity')}>
+              <div className="activity-icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2D6FE0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                </svg>
+              </div>
+              <div className="activity-text">
+                <div className="activity-label">Activity</div>
+                <div className="activity-subtitle">View your shared activity</div>
+              </div>
+              <div className="activity-badge-wrapper">
+                {unreadActivityCount > 0 && (
+                  <div className="activity-badge">{unreadActivityCount}</div>
+                )}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M9 18l6-6-6-6"/>
+                </svg>
+              </div>
+            </div>
           </div>
 
           {/* Profile Section */}

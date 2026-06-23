@@ -125,6 +125,73 @@
   margin-bottom: 10px;
 }
 
+/* Activity Card */
+.activity-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 20px;
+  padding: 13px;
+  box-shadow: 0 5px 14px rgba(20, 35, 59, 0.05);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.activity-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(20, 35, 59, 0.08);
+}
+
+.activity-card:active {
+  transform: translateY(0);
+}
+
+.activity-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: var(--color-background-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.activity-text {
+  flex: 1;
+}
+
+.activity-label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.activity-subtitle {
+  font-size: 12px;
+  color: var(--color-text-tertiary);
+  margin-top: 2px;
+}
+
+.activity-badge-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activity-badge {
+  background: #ff69b4;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  min-width: 22px;
+  text-align: center;
+}
+
 .profile-picture-card {
   display: flex;
   align-items: center;

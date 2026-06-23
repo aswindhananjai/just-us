@@ -1,0 +1,238 @@
+.activity-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffeef8 0%, #fff5f7 100%);
+  padding-bottom: 20px;
+}
+
+.activity-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ffe4f0;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.05);
+}
+
+.activity-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: #ff69b4;
+  margin: 0;
+  flex: 1;
+  text-align: center;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: #ff69b4;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  border-radius: 8px;
+}
+
+.back-button:hover {
+  background: #fff0f8;
+}
+
+.back-button:active {
+  transform: scale(0.95);
+}
+
+.mark-all-read-button {
+  background: none;
+  border: 1px solid #ff69b4;
+  color: #ff69b4;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.mark-all-read-button:hover:not(:disabled) {
+  background: #ff69b4;
+  color: white;
+}
+
+.mark-all-read-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.activity-loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #ff69b4;
+  font-size: 16px;
+}
+
+.activity-list {
+  padding: 12px 16px;
+}
+
+.no-activities {
+  text-align: center;
+  padding: 80px 20px;
+  color: #999;
+}
+
+.no-activities-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.no-activities p {
+  font-size: 16px;
+  margin: 0;
+}
+
+.activity-item {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(255, 105, 180, 0.08);
+  position: relative;
+}
+
+.activity-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(255, 105, 180, 0.15);
+}
+
+.activity-item:active {
+  transform: translateY(0);
+}
+
+.activity-item.unread {
+  background: linear-gradient(135deg, #fff5f7 0%, #ffffff 100%);
+  border: 1px solid #ffe4f0;
+}
+
+.activity-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fff0f8 0%, #ffe4f0 100%);
+  border-radius: 12px;
+}
+
+.activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-text {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.activity-memory-title {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-time {
+  font-size: 12px;
+  color: #999;
+}
+
+.unread-dot {
+  width: 10px;
+  height: 10px;
+  background: #ff69b4;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+  box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 105, 180, 0.1);
+  }
+}
+
+.load-more-button {
+  width: 100%;
+  padding: 14px;
+  background: white;
+  border: 2px dashed #ffe4f0;
+  border-radius: 12px;
+  color: #ff69b4;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.load-more-button:hover {
+  background: #fff5f7;
+  border-color: #ff69b4;
+}
+
+.load-more-button:active {
+  transform: scale(0.98);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .activity-header {
+    padding: 12px 16px;
+  }
+
+  .activity-header h1 {
+    font-size: 20px;
+  }
+
+  .mark-all-read-button {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .activity-list {
+    padding: 8px 12px;
+  }
+
+  .activity-item {
+    padding: 14px;
+  }
+
+  .activity-icon {
+    font-size: 24px;
+    width: 42px;
+    height: 42px;
+  }
+}

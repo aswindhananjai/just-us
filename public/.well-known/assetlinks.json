@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.aswin.myapp",
+    "sha256_cert_fingerprints": [
+      "AA:4A:C1:8C:2D:76:A6:2E:85:7C:33:CE:F5:2E:CD:96:30:5C:89:9C:0C:DD:97:B5:5B:39:96:74:F4:98:FE:10"
+    ]
+  }
+}]

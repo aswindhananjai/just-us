@@ -3,6 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { MEMORY_CATEGORIES } from '../utils/constants';
 import { getCurrentUser } from '../utils/auth';
+import { createActivity } from '../utils/activities';
 import '../styles/MemoryDetail.css';
 
 export default function MemoryDetail() {
@@ -130,6 +131,9 @@ export default function MemoryDetail() {
   const handleDeleteConfirm = async () => {
     setDeleting(true);
     try {
+      // Create activity for memory deletion before soft delete
+      await createActivity(id, 'deleted', currentUser, memory.title, memory.category);
+
       // Soft delete: set is_active to false instead of deleting the record
       const { error } = await supabase
         .from('memories')
