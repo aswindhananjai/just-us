@@ -39,18 +39,18 @@ function AppContent() {
   const location = useLocation();
   const [isLocked, setIsLocked] = useState(!isAuthenticated());
 
+  // Re-run whenever the app is unlocked (isLocked goes false)
+  // This ensures the FCM token is refreshed after every passcode entry,
+  // even when switching between accounts.
   useEffect(() => {
-    // Setup notification listener when user is authenticated
-    if (isAuthenticated()) {
-      // Setup foreground message listener
+    if (!isLocked && isAuthenticated()) {
+      setupForegroundMessageListener();
       const timer = setTimeout(() => {
         requestNotificationPermission();
-        setupForegroundMessageListener();
-      }, 2000);
-
+      }, 1500);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [isLocked]);
 
   useEffect(() => {
     // Keep isLocked state in sync with authentication status
