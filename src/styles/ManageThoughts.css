@@ -245,6 +245,47 @@
   padding-right: 70px;
 }
 
+/* Reply thread */
+.thought-reply-thread {
+  margin-top: 14px;
+  padding-left: 20px;
+  position: relative;
+}
+
+.thought-reply-connector {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: linear-gradient(180deg, #E8EEF7, transparent);
+  border-radius: 2px;
+}
+
+.thought-reply-bubble {
+  background: #fff;
+  border: 1px solid #E8EEF7;
+  border-radius: 14px;
+  padding: 12px 14px;
+  position: relative;
+}
+
+.thought-reply-author {
+  font-size: 11px;
+  font-weight: 800;
+  color: #2D6FE0;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.thought-reply-message {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #37475F;
+  font-weight: 500;
+}
+
 .thought-actions {
   position: absolute;
   top: 14px;

@@ -236,3 +236,38 @@ export async function incrementViewCount(id) {
     return false;
   }
 }
+
+/**
+ * Add or update a reply to a thought
+ */
+export async function addReplyToThought(id, replyText) {
+  try {
+    // Validate word count
+    const { isValid, count } = validateWordCount(replyText);
+    if (!isValid) {
+      throw new Error(`Reply exceeds 75 words (${count} words)`);
+    }
+
+    if (!replyText.trim()) {
+      throw new Error('Reply cannot be empty');
+    }
+
+    const { error } = await supabase
+      .from('thoughts')
+      .update({
+        reply: replyText.trim(),
+        reply_at: new Date().toISOString()
+      })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error adding reply to thought:', error);
+      throw error;
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Exception adding reply to thought:', err);
+    throw err;
+  }
+}

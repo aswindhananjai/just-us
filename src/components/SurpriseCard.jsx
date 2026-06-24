@@ -1,12 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { incrementViewCount } from '../utils/thoughts';
+import { incrementViewCount, addReplyToThought } from '../utils/thoughts';
+import { getCurrentUser } from '../utils/auth';
+import ReplyBottomSheet from './ReplyBottomSheet';
 import '../styles/SurpriseCard.css';
 
-export default function SurpriseCard({ thought, onClose }) {
+export default function SurpriseCard({ thought, onClose, onReplyAdded }) {
   const navigate = useNavigate();
+  const currentUser = getCurrentUser();
   const [cardFlipped, setCardFlipped] = useState(false);
   const [hasIncrementedView, setHasIncrementedView] = useState(false);
+  const [showReplySheet, setShowReplySheet] = useState(false);
+  const [localThought, setLocalThought] = useState(thought);
 
   const handleCardClick = async () => {
     // Toggle flip state
@@ -30,7 +35,27 @@ export default function SurpriseCard({ thought, onClose }) {
     onClose();
   };
 
+  const handleReplyClick = (e) => {
+    e.stopPropagation();
+    setShowReplySheet(true);
+  };
+
+  const handleSaveReply = async (replyText) => {
+    await addReplyToThought(localThought.id, replyText);
+    // Update local thought with new reply
+    setLocalThought({
+      ...localThought,
+      reply: replyText,
+      reply_at: new Date().toISOString()
+    });
+    if (onReplyAdded) {
+      onReplyAdded();
+    }
+  };
+
   if (!thought) return null;
+
+  const hasReply = Boolean(localThought.reply);
 
   return (
     <div className="surprise-overlay">
@@ -58,14 +83,21 @@ export default function SurpriseCard({ thought, onClose }) {
           {/* Back face (revealed) */}
           <div className="surprise-card-face surprise-card-back">
             <div className="surprise-card-message">
-              {thought.message}
+              {localThought.message}
             </div>
             <div className="surprise-card-author">
-              — {thought.created_by} 💙
+              — {localThought.created_by} 💙
             </div>
             <div className="surprise-card-hint">
               tap to hide
             </div>
+            {/* Reply button */}
+            <button className="surprise-reply-button" onClick={handleReplyClick}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/>
+              </svg>
+              {hasReply ? 'Edit reply' : 'Reply'}
+            </button>
           </div>
         </div>
       </div>
@@ -78,6 +110,15 @@ export default function SurpriseCard({ thought, onClose }) {
         </svg>
         Manage my thoughts
       </button>
+
+      {/* Reply bottom sheet */}
+      {showReplySheet && (
+        <ReplyBottomSheet
+          thought={localThought}
+          onClose={() => setShowReplySheet(false)}
+          onSave={handleSaveReply}
+        />
+      )}
     </div>
   );
 }

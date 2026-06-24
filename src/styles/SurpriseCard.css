@@ -164,6 +164,30 @@
   font-size: 11.5px;
   font-weight: 600;
   color: #C7D6EE;
+  margin-bottom: 12px;
+}
+
+/* Reply button */
+.surprise-reply-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2D6FE0;
+  background: #EAF1FC;
+  border: none;
+  border-radius: 12px;
+  padding: 9px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+  margin-top: 8px;
+}
+
+.surprise-reply-button:active {
+  transform: scale(0.97);
+  background: #D6E7F9;
 }
 
 /* Manage thoughts button */

@@ -284,6 +284,17 @@ export default function ManageThoughts() {
                               </svg>
                             </button>
                           </div>
+
+                          {/* Reply thread */}
+                          {thought.reply && (
+                            <div className="thought-reply-thread">
+                              <div className="thought-reply-connector"></div>
+                              <div className="thought-reply-bubble">
+                                <div className="thought-reply-author">{partnerName} replied</div>
+                                <div className="thought-reply-message">{thought.reply}</div>
+                              </div>
+                            </div>
+                          )}
                         </>
                       )}
                     </div>
