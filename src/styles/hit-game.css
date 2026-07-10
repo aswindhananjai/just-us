@@ -1,0 +1,536 @@
+.hit-game-container {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ===== TARGET SELECTION SCREEN ===== */
+.target-selection {
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.game-title {
+  color: #1e3a8a;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+.targets-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.target-card {
+  background: #f8fafc;
+  border-radius: 20px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
+  border: 3px solid #e0e7ff;
+}
+
+.target-card:active {
+  transform: scale(0.95);
+}
+
+.target-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.25);
+  border-color: #3b82f6;
+}
+
+.target-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+
+.target-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* ===== PUNCHING GAME SCREEN ===== */
+.punching-game {
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  padding-top: 1.5rem;
+}
+
+/* Progress Section */
+.progress-section {
+  width: 100%;
+}
+
+.punch-counter {
+  color: #1e3a8a;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.meter-container {
+  width: 100%;
+  height: 40px;
+  background: #e0e7ff;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 3px solid #c7d2fe;
+  box-shadow: 0 2px 4px rgba(30, 58, 138, 0.1);
+}
+
+.meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 50%, #1d4ed8 100%);
+  border-radius: 20px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Target Image Container */
+.target-image-container {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.target-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(30, 58, 138, 0.2);
+  border: 4px solid #bfdbfe;
+  transition: transform 0.1s ease;
+}
+
+/* Shake animation */
+@keyframes shake {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-10px, -10px) rotate(-5deg); }
+  20% { transform: translate(10px, 5px) rotate(5deg); }
+  30% { transform: translate(-8px, 8px) rotate(-3deg); }
+  40% { transform: translate(8px, -5px) rotate(3deg); }
+  50% { transform: translate(-5px, 10px) rotate(-2deg); }
+  60% { transform: translate(5px, -8px) rotate(2deg); }
+  70% { transform: translate(-3px, 5px) rotate(-1deg); }
+  80% { transform: translate(3px, -3px) rotate(1deg); }
+  90% { transform: translate(-2px, 2px) rotate(-0.5deg); }
+}
+
+.target-image.shake {
+  animation: shake 0.3s ease;
+}
+
+/* Punch fist animation */
+.punch-fist {
+  position: absolute;
+  bottom: -20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 6rem;
+  animation: punchUp 0.3s ease-out;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes punchUp {
+  0% {
+    bottom: -20%;
+    opacity: 0;
+    transform: translateX(-50%) scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.2);
+  }
+  100% {
+    bottom: 40%;
+    opacity: 0;
+    transform: translateX(-50%) scale(1);
+  }
+}
+
+/* Motivational section - between progress bar and image */
+.motivational-section {
+  width: 100%;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.motivational-text {
+  color: #3b82f6;
+  font-size: 2rem;
+  font-weight: 900;
+  text-shadow: 2px 2px 4px rgba(59, 130, 246, 0.3);
+  animation: fadeInOut 0.8s ease;
+  pointer-events: none;
+}
+
+/* Countdown display - between progress bar and image */
+.countdown-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  animation: countdownPulse 1s ease;
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(0) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.9);
+  }
+}
+
+.bomb-emoji {
+  font-size: 5rem;
+  animation: bombShake 0.5s ease-in-out infinite;
+}
+
+@keyframes bombShake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+.detonating-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e3a8a;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+.countdown-number {
+  font-size: 6rem;
+  font-weight: 900;
+  color: #dc2626;
+  text-shadow: 3px 3px 6px rgba(220, 38, 38, 0.3);
+  text-align: center;
+}
+
+@keyframes countdownPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Blast overlay - overlays on the image when exploding */
+.blast-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 8rem;
+  z-index: 15;
+  pointer-events: none;
+  animation: blastExpand 1.5s ease-out;
+}
+
+@keyframes blastExpand {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0;
+  }
+  20% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+
+/* Explosion and shatter effects */
+.target-image.exploding {
+  animation: explode 0.5s ease-out forwards;
+}
+
+@keyframes explode {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+.shatter-piece {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, rgba(191, 219, 254, 0.9) 0%, rgba(59, 130, 246, 0.6) 100%);
+  border-radius: 50%;
+  animation: shatter 1.5s ease-out forwards;
+  pointer-events: none;
+}
+
+@keyframes shatter {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--velocity-x), var(--velocity-y)) rotate(720deg) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Punch Button */
+.punch-button {
+  width: 100%;
+  max-width: 300px;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  border-radius: 50px;
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 1rem;
+}
+
+.punch-button:active {
+  transform: scale(0.95);
+  box-shadow: 0 3px 8px rgba(59, 130, 246, 0.3);
+}
+
+.punch-button:hover {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.punch-button-text {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Game Complete Screen */
+.game-complete {
+  text-align: center;
+  animation: celebrationBounce 0.6s ease;
+}
+
+@keyframes celebrationBounce {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.celebration-text {
+  font-size: 3rem;
+  font-weight: 900;
+  color: #1e3a8a;
+  margin-bottom: 1rem;
+}
+
+.celebration-emoji {
+  font-size: 6rem;
+  margin-bottom: 2rem;
+  animation: rotate 1s ease infinite;
+}
+
+@keyframes rotate {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-15deg);
+  }
+  75% {
+    transform: rotate(15deg);
+  }
+}
+
+.play-again-button {
+  padding: 1.25rem 3rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  border-radius: 50px;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.play-again-button:active {
+  transform: scale(0.95);
+}
+
+.play-again-button:hover {
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Mobile optimizations */
+@media (max-width: 480px) {
+  .game-title {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .targets-grid {
+    gap: 1rem;
+  }
+
+  .target-card {
+    padding: 1rem;
+  }
+
+  .target-name {
+    font-size: 1rem;
+  }
+
+  .punch-counter {
+    font-size: 1.25rem;
+  }
+
+  .meter-container {
+    height: 35px;
+  }
+
+  .target-image-container {
+    max-width: 280px;
+  }
+
+  .punch-fist {
+    font-size: 4rem;
+  }
+
+  .motivational-section {
+    min-height: 80px;
+  }
+
+  .motivational-text {
+    font-size: 1.5rem;
+  }
+
+  .bomb-emoji {
+    font-size: 3.5rem;
+  }
+
+  .detonating-text {
+    font-size: 1.125rem;
+  }
+
+  .countdown-number {
+    font-size: 4.5rem;
+  }
+
+  .blast-overlay {
+    font-size: 6rem;
+  }
+
+  .punch-button {
+    font-size: 1.5rem;
+    padding: 1.25rem 1.5rem;
+  }
+
+  .celebration-text {
+    font-size: 2rem;
+  }
+
+  .celebration-emoji {
+    font-size: 4rem;
+  }
+
+  .play-again-button {
+    font-size: 1.25rem;
+    padding: 1rem 2rem;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+  .target-image-container {
+    max-width: 240px;
+  }
+
+  .punch-button {
+    font-size: 1.25rem;
+  }
+}
+
+/* Prevent pull-to-refresh on mobile */
+body {
+  overscroll-behavior-y: contain;
+}

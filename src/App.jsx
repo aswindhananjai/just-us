@@ -13,6 +13,7 @@ import AllMemories from './pages/AllMemories';
 import Activity from './pages/Activity';
 import ManageThoughts from './pages/ManageThoughts';
 import Timer from './pages/Timer';
+import HitRoshanHari from './pages/HitRoshanHari';
 
 function ProtectedRoute({ children }) {
   const [authenticated, setAuthenticated] = useState(null);
@@ -98,6 +99,7 @@ function AppContent() {
       <Routes>
         <Route path="/lock" element={<PasscodeLock onSuccess={() => { setIsLocked(false); navigate('/'); }} />} />
         <Route path="/timer" element={<Timer />} />
+        <Route path="/hit-roshan-hari" element={<HitRoshanHari />} />
         <Route
           path="/"
           element={
