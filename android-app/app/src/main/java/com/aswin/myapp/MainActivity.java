@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
@@ -16,6 +18,13 @@ import android.webkit.WebViewClient;
 import android.view.KeyEvent;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends Activity {
     private WebView webView;
@@ -24,6 +33,7 @@ public class MainActivity extends Activity {
     private static final int FILE_CHOOSER_REQUEST_CODE = 101;
 
     private ValueCallback<Uri[]> filePathCallback;
+    private Uri cameraPhotoUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,9 +80,53 @@ public class MainActivity extends Activity {
                 }
                 MainActivity.this.filePathCallback = filePathCallback;
 
-                Intent intent = fileChooserParams.createIntent();
+                // Check if the file chooser is requesting camera capture
+                boolean captureEnabled = false;
+                if (fileChooserParams.getAcceptTypes() != null) {
+                    for (String type : fileChooserParams.getAcceptTypes()) {
+                        if (type.contains("image")) {
+                            captureEnabled = fileChooserParams.isCaptureEnabled();
+                            break;
+                        }
+                    }
+                }
+
+                Intent chooserIntent = null;
+
+                if (captureEnabled) {
+                    // Launch camera directly
+                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    if (cameraIntent.resolveActivity(getPackageManager()) != null) {
+                        File photoFile = null;
+                        try {
+                            photoFile = createImageFile();
+                        } catch (IOException ex) {
+                            // Error occurred while creating the File
+                        }
+
+                        if (photoFile != null) {
+                            cameraPhotoUri = FileProvider.getUriForFile(MainActivity.this,
+                                    "com.aswin.myapp.fileprovider",
+                                    photoFile);
+                            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraPhotoUri);
+
+                            // Also create a gallery chooser as fallback
+                            Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                            galleryIntent.addCategory(Intent.CATEGORY_OPENABLE);
+                            galleryIntent.setType("image/*");
+
+                            chooserIntent = Intent.createChooser(galleryIntent, "Choose Photo");
+                            chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{cameraIntent});
+                        }
+                    }
+                } else {
+                    // Regular file chooser
+                    Intent intent = fileChooserParams.createIntent();
+                    chooserIntent = intent;
+                }
+
                 try {
-                    startActivityForResult(intent, FILE_CHOOSER_REQUEST_CODE);
+                    startActivityForResult(chooserIntent, FILE_CHOOSER_REQUEST_CODE);
                 } catch (Exception e) {
                     MainActivity.this.filePathCallback = null;
                     return false;
@@ -122,6 +176,14 @@ public class MainActivity extends Activity {
         }
     }
 
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        return File.createTempFile(imageFileName, ".jpg", storageDir);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -133,22 +195,26 @@ public class MainActivity extends Activity {
 
             Uri[] results = null;
             if (resultCode == RESULT_OK) {
-                if (data != null) {
+                if (data != null && data.getDataString() != null) {
+                    // File selected from gallery
                     String dataString = data.getDataString();
-                    if (dataString != null) {
-                        results = new Uri[]{Uri.parse(dataString)};
-                    } else if (data.getClipData() != null) {
-                        int count = data.getClipData().getItemCount();
-                        results = new Uri[count];
-                        for (int i = 0; i < count; i++) {
-                            results[i] = data.getClipData().getItemAt(i).getUri();
-                        }
+                    results = new Uri[]{Uri.parse(dataString)};
+                } else if (data != null && data.getClipData() != null) {
+                    // Multiple files selected
+                    int count = data.getClipData().getItemCount();
+                    results = new Uri[count];
+                    for (int i = 0; i < count; i++) {
+                        results[i] = data.getClipData().getItemAt(i).getUri();
                     }
+                } else if (cameraPhotoUri != null) {
+                    // Photo taken from camera
+                    results = new Uri[]{cameraPhotoUri};
                 }
             }
 
             filePathCallback.onReceiveValue(results);
             filePathCallback = null;
+            cameraPhotoUri = null;
         }
     }
 

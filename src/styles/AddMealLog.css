@@ -198,9 +198,10 @@
 /* Form Row (Date & Time) */
 .form-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   margin-bottom: 18px;
   width: 100%;
+  align-items: flex-start;
 }
 
 .flex-1 {
@@ -220,6 +221,8 @@
   position: absolute;
   left: 14px;
   pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .form-input.icon-input {
