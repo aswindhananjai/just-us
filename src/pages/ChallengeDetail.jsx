@@ -61,11 +61,17 @@ export default function ChallengeDetail() {
   const calculateProgress = () => {
     if (!challenge) return { currentDay: 0, totalDays: 30, percentage: 0, streak: 0 };
 
-    const startDate = new Date(challenge.start_date);
+    // Parse date string correctly to avoid timezone issues
+    const [year, month, day] = challenge.start_date.split('-').map(Number);
+    const startDate = new Date(year, month - 1, day);
+    startDate.setHours(0, 0, 0, 0);
+
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const diffTime = today.getTime() - startDate.getTime();
     const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    const currentDay = Math.min(daysPassed, challenge.duration_days);
+    const currentDay = Math.max(1, Math.min(daysPassed, challenge.duration_days));
 
     // Calculate streak (consecutive days with ALL 3 meals logged)
     let streak = 0;
@@ -110,12 +116,19 @@ export default function ChallengeDetail() {
   };
 
   const getCalendarDays = () => {
-    if (!challenge) return [];
+    if (!challenge) return { days: [], startDayOfWeek: 0 };
 
     const days = [];
-    const startDate = new Date(challenge.start_date);
+    // Parse date string correctly to avoid timezone issues
+    const [year, month, day] = challenge.start_date.split('-').map(Number);
+    const startDate = new Date(year, month - 1, day);
+    startDate.setHours(0, 0, 0, 0);
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    // Get the day of week for the start date (0 = Sunday, 1 = Monday, etc.)
+    const startDayOfWeek = startDate.getDay();
 
     // Group logs by date and meal type
     const logsByDate = mealLogs.reduce((acc, log) => {
@@ -127,9 +140,12 @@ export default function ChallengeDetail() {
     for (let i = 0; i < challenge.duration_days; i++) {
       const currentDate = new Date(startDate);
       currentDate.setDate(startDate.getDate() + i);
-      currentDate.setHours(0, 0, 0, 0);
 
-      const dateStr = currentDate.toISOString().split('T')[0];
+      // Format date manually to avoid timezone issues with toISOString
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      const dateStr = `${year}-${month}-${day}`;
       const isPast = currentDate < today;
       const isToday = currentDate.getTime() === today.getTime();
       const isFuture = currentDate > today;
@@ -154,7 +170,7 @@ export default function ChallengeDetail() {
       });
     }
 
-    return days;
+    return { days, startDayOfWeek };
   };
 
   const formatLogTime = (timeString) => {
@@ -202,7 +218,7 @@ export default function ChallengeDetail() {
   }
 
   const progress = calculateProgress();
-  const calendarDays = getCalendarDays();
+  const { days: calendarDays, startDayOfWeek } = getCalendarDays();
   const recentLogs = mealLogs.slice(0, 3);
 
   return (
@@ -318,22 +334,40 @@ export default function ChallengeDetail() {
               </span>
             </div>
           </div>
+
+          {/* Day headers */}
+          <div className="calendar-day-headers">
+            <div className="calendar-day-header">S</div>
+            <div className="calendar-day-header">M</div>
+            <div className="calendar-day-header">T</div>
+            <div className="calendar-day-header">W</div>
+            <div className="calendar-day-header">T</div>
+            <div className="calendar-day-header">F</div>
+            <div className="calendar-day-header">S</div>
+          </div>
+
           <div className="calendar-grid">
+            {/* Add empty cells for days before the start day */}
+            {Array.from({ length: startDayOfWeek }).map((_, index) => (
+              <div key={`empty-${index}`} className="calendar-day empty"></div>
+            ))}
+
+            {/* Render actual challenge days */}
             {calendarDays.map((dayData) => (
               <div
                 key={dayData.day}
-                className={`calendar-day ${dayData.isToday ? 'today' : ''} ${dayData.allMealsLogged ? 'done' : ''} ${dayData.someMealsLogged ? 'partial' : ''} ${dayData.isFuture ? 'future' : ''}`}
+                className={`calendar-day ${dayData.isToday ? 'today' : ''} ${dayData.allMealsLogged && !dayData.isToday ? 'done' : ''} ${dayData.someMealsLogged && !dayData.allMealsLogged ? 'partial' : ''} ${dayData.isFuture ? 'future' : ''}`}
               >
                 <span className="day-number">{dayData.day}</span>
-                {dayData.allMealsLogged && !dayData.isToday && (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                {dayData.isToday && <span className="today-emoji">🔥</span>}
+                {!dayData.isToday && dayData.allMealsLogged && (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 6 9 17l-5-5"/>
                   </svg>
                 )}
-                {dayData.someMealsLogged && !dayData.isToday && !dayData.allMealsLogged && (
+                {!dayData.isToday && !dayData.isFuture && dayData.someMealsLogged && !dayData.allMealsLogged && (
                   <span className="partial-indicator">{dayData.mealsCount}/3</span>
                 )}
-                {dayData.isToday && <span className="today-emoji">🔥</span>}
               </div>
             ))}
           </div>
@@ -352,7 +386,7 @@ export default function ChallengeDetail() {
                 <div
                   key={log.id}
                   className="log-card"
-                  onClick={() => navigate(`/challenge/${id}/log/${log.id}`)}
+                  onClick={() => navigate(`/challenge/${id}/log-detail/${log.id}`)}
                 >
                   {log.photo_url && (
                     <img src={log.photo_url} alt={log.meal_name} className="log-photo" />

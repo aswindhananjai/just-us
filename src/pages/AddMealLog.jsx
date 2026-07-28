@@ -25,6 +25,10 @@ export default function AddMealLog() {
   const [saving, setSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const [errors, setErrors] = useState({
+    mealName: '',
+    photo: ''
+  });
 
   useEffect(() => {
     if (logId) {
@@ -92,6 +96,8 @@ export default function AddMealLog() {
 
     try {
       setUploading(true);
+      setErrors({ ...errors, photo: '' }); // Clear previous errors
+
       const fileExt = photoFile.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `meal-logs/${fileName}`;
@@ -109,8 +115,8 @@ export default function AddMealLog() {
       return publicUrl;
     } catch (error) {
       console.error('Error uploading photo:', error);
-      alert('Failed to upload photo');
-      return formData.photo_url;
+      setErrors({ ...errors, photo: 'Failed to upload photo. Please try again.' });
+      throw error; // Re-throw to stop the save flow
     } finally {
       setUploading(false);
     }
@@ -119,8 +125,12 @@ export default function AddMealLog() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Clear previous errors
+    setErrors({ mealName: '', photo: '' });
+
+    // Validate meal name
     if (!formData.meal_name.trim()) {
-      alert('Please enter a meal name');
+      setErrors({ ...errors, mealName: 'Meal name is mandatory' });
       return;
     }
 
@@ -146,6 +156,7 @@ export default function AddMealLog() {
         log_date: formData.log_date,
         log_time: formData.log_time,
         note: formData.note.trim() || null,
+        updated_by: userData?.id,
         updated_at: new Date().toISOString()
       };
 
@@ -163,6 +174,7 @@ export default function AddMealLog() {
           .from('meal_logs')
           .insert([{
             ...logData,
+            created_by: userData?.id,
             created_at: new Date().toISOString()
           }]);
 
@@ -172,7 +184,7 @@ export default function AddMealLog() {
       navigate(`/challenge/${challengeId}`);
     } catch (error) {
       console.error('Error saving log:', error);
-      alert('Failed to save log');
+      // Don't show alert anymore - error is already displayed inline
     } finally {
       setSaving(false);
     }
@@ -236,6 +248,7 @@ export default function AddMealLog() {
               </>
             )}
           </div>
+          {errors.photo && <div className="error-message">{errors.photo}</div>}
         </div>
 
         {/* Meal Type Selector */}
@@ -260,11 +273,17 @@ export default function AddMealLog() {
           <div className="form-label">Meal name</div>
           <input
             type="text"
-            className="form-input"
+            className={`form-input ${errors.mealName ? 'error' : ''}`}
             placeholder="e.g., Grilled chicken salad"
             value={formData.meal_name}
-            onChange={(e) => setFormData({ ...formData, meal_name: e.target.value })}
+            onChange={(e) => {
+              setFormData({ ...formData, meal_name: e.target.value });
+              if (errors.mealName) {
+                setErrors({ ...errors, mealName: '' });
+              }
+            }}
           />
+          {errors.mealName && <div className="error-message">{errors.mealName}</div>}
         </div>
 
         {/* Date & Time */}

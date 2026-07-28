@@ -14,6 +14,8 @@ CREATE TABLE IF NOT EXISTS challenges (
   participant_id UUID REFERENCES users(id),
   participant_name TEXT NOT NULL,
   status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'completed', 'cancelled')),
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -29,6 +31,8 @@ CREATE TABLE IF NOT EXISTS meal_logs (
   log_date DATE NOT NULL,
   log_time TIME NOT NULL,
   note TEXT,
+  created_by UUID REFERENCES users(id),
+  updated_by UUID REFERENCES users(id),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -82,17 +86,39 @@ CREATE POLICY "Allow delete meal logs" ON meal_logs
   USING (true);
 
 -- Insert Anu's 3-Day Meal Challenge (if not exists)
-INSERT INTO challenges (title, description, duration_days, start_date, participant_name, status)
-SELECT
-  'Anu''s 3-Day Meal Challenge',
-  'Log breakfast, lunch & dinner every day for 30 days',
-  30,
-  '2026-07-16',
-  'Anu',
-  'active'
-WHERE NOT EXISTS (
-  SELECT 1 FROM challenges WHERE title = 'Anu''s 3-Day Meal Challenge'
-);
+DO $$
+DECLARE
+  anu_user_id UUID;
+BEGIN
+  -- Get Anu's user ID
+  SELECT id INTO anu_user_id FROM users WHERE name = 'Anu' LIMIT 1;
+
+  -- Insert challenge if it doesn't exist
+  INSERT INTO challenges (title, description, duration_days, start_date, participant_name, status, created_by, updated_by)
+  SELECT
+    'Anu''s 3-Day Meal Challenge',
+    'Log breakfast, lunch & dinner every day for 30 days',
+    30,
+    '2026-07-16',
+    'Anu',
+    'active',
+    anu_user_id,
+    anu_user_id
+  WHERE NOT EXISTS (
+    SELECT 1 FROM challenges WHERE title = 'Anu''s 3-Day Meal Challenge'
+  );
+
+  -- Update existing records with Anu's ID if they're missing
+  UPDATE challenges
+  SET created_by = anu_user_id,
+      updated_by = anu_user_id
+  WHERE created_by IS NULL;
+
+  UPDATE meal_logs
+  SET created_by = anu_user_id,
+      updated_by = anu_user_id
+  WHERE created_by IS NULL;
+END $$;
 
 -- =====================================================
 -- Success! Your challenges feature is now ready to use!
