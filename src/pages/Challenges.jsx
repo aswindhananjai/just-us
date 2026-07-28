@@ -16,7 +16,7 @@ export default function Challenges() {
     try {
       const { data, error } = await supabase
         .from('challenges')
-        .select('*, meal_logs(id)')
+        .select('*, meal_logs(meal_type, log_date)')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
@@ -24,20 +24,77 @@ export default function Challenges() {
 
       // Calculate progress for each challenge
       const challengesWithProgress = data?.map(challenge => {
-        const startDate = new Date(challenge.start_date);
+        // Parse date string correctly to avoid timezone issues
+        const [year, month, day] = challenge.start_date.split('-').map(Number);
+        const startDate = new Date(year, month - 1, day);
+        startDate.setHours(0, 0, 0, 0);
+
         const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
         const diffTime = today.getTime() - startDate.getTime();
         const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-        const currentDay = Math.min(daysPassed, challenge.duration_days);
+        const currentDay = Math.max(1, Math.min(daysPassed, challenge.duration_days));
         const logsCount = challenge.meal_logs?.length || 0;
 
-        // Calculate streak (simplified - counts consecutive days with logs)
-        const streak = currentDay; // TODO: Implement actual streak logic
+        // Calculate streak (consecutive days with ALL 3 meals logged)
+        let streak = 0;
+        let completedDays = 0;
+
+        // Group logs by date
+        const logsByDate = (challenge.meal_logs || []).reduce((acc, log) => {
+          if (!acc[log.log_date]) acc[log.log_date] = [];
+          acc[log.log_date].push(log.meal_type);
+          return acc;
+        }, {});
+
+        // Check streak from today backwards
+        for (let i = 0; i < currentDay; i++) {
+          const checkDate = new Date();
+          checkDate.setDate(checkDate.getDate() - i);
+          const dateStr = checkDate.toISOString().split('T')[0];
+
+          // Check if this date is before challenge start
+          const checkDateTime = new Date(dateStr);
+          if (checkDateTime < startDate) break;
+
+          const mealsForDay = logsByDate[dateStr] || [];
+          const hasBreakfast = mealsForDay.includes('breakfast');
+          const hasLunch = mealsForDay.includes('lunch');
+          const hasDinner = mealsForDay.includes('dinner');
+
+          // All 3 meals must be logged for the streak to continue
+          if (hasBreakfast && hasLunch && hasDinner) {
+            streak++;
+          } else {
+            // Streak broken
+            break;
+          }
+        }
+
+        // Count total completed days (all 3 meals logged)
+        for (let i = 0; i < currentDay; i++) {
+          const checkDate = new Date(startDate);
+          checkDate.setDate(startDate.getDate() + i);
+          const year = checkDate.getFullYear();
+          const month = String(checkDate.getMonth() + 1).padStart(2, '0');
+          const day = String(checkDate.getDate()).padStart(2, '0');
+          const dateStr = `${year}-${month}-${day}`;
+
+          const mealsForDay = logsByDate[dateStr] || [];
+          const hasBreakfast = mealsForDay.includes('breakfast');
+          const hasLunch = mealsForDay.includes('lunch');
+          const hasDinner = mealsForDay.includes('dinner');
+
+          if (hasBreakfast && hasLunch && hasDinner) {
+            completedDays++;
+          }
+        }
 
         return {
           ...challenge,
           currentDay,
-          percentage: Math.round((currentDay / challenge.duration_days) * 100),
+          percentage: Math.round((completedDays / challenge.duration_days) * 100),
           logsCount,
           streak
         };
