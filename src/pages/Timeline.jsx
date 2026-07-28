@@ -10,6 +10,7 @@ import '../styles/Timeline.css';
 
 export default function Timeline() {
   const [memories, setMemories] = useState([]);
+  const [challenges, setChallenges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [groupedMemories, setGroupedMemories] = useState({});
   const [relationshipStartDate, setRelationshipStartDate] = useState('2026-05-21');
@@ -60,19 +61,19 @@ export default function Timeline() {
   const fetchData = async () => {
     try {
       // Fetch active memories only (soft delete filter)
-      const { data, error } = await supabase
+      const { data: memoriesData, error: memoriesError } = await supabase
         .from('memories')
         .select('*')
         .eq('is_active', true)
         .order('date', { ascending: false })
         .order('sort_order', { ascending: true });
 
-      if (error) throw error;
+      if (memoriesError) throw memoriesError;
 
-      setMemories(data || []);
+      setMemories(memoriesData || []);
 
       // Group memories by year
-      const grouped = (data || []).reduce((acc, memory) => {
+      const grouped = (memoriesData || []).reduce((acc, memory) => {
         const year = new Date(memory.date).getFullYear();
         if (!acc[year]) acc[year] = [];
         acc[year].push(memory);
@@ -80,6 +81,17 @@ export default function Timeline() {
       }, {});
 
       setGroupedMemories(grouped);
+
+      // Fetch active challenges
+      const { data: challengesData, error: challengesError } = await supabase
+        .from('challenges')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (!challengesError) {
+        setChallenges(challengesData || []);
+      }
 
       // Fetch relationship start date
       const { data: configData } = await supabase
@@ -174,6 +186,19 @@ export default function Timeline() {
     } catch (e) {
       return imageUrlString;
     }
+  };
+
+  const calculateChallengeProgress = (challenge) => {
+    const startDate = new Date(challenge.start_date);
+    const today = new Date();
+    const diffTime = today.getTime() - startDate.getTime();
+    const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    const currentDay = Math.min(daysPassed, challenge.duration_days);
+    return {
+      currentDay,
+      totalDays: challenge.duration_days,
+      percentage: Math.round((currentDay / challenge.duration_days) * 100)
+    };
   };
 
   if (loading) {
@@ -295,90 +320,127 @@ export default function Timeline() {
         </div>
       )}
 
-      {/* White sheet below hero */}
-      <div className="memories-section">
-        <div className="section-header">
-          <h2>Your memories</h2>
-          {memories.length > 5 && (
-            <button className="see-all-link" onClick={() => navigate('/memories')}>
-              See all
-            </button>
-          )}
-        </div>
+      {/* For You Section - Bento Box Layout */}
+      <div className="for-you-section">
+        <h2 className="for-you-title">For you</h2>
 
-        {memories.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-illustration">📖</div>
-            <h3>Start Our Story</h3>
-            <p>Add your first memory to begin building your timeline.</p>
-          </div>
-        ) : (
-          <>
-            {memories.slice(0, 5).map(memory => {
-              const categoryIds = memory.category ? memory.category.split(',').filter(Boolean) : ['first'];
-              const categories = categoryIds.map(id => getCategoryInfo(id));
-              const displayCategory = categories.find(c => c.id !== 'first') || categories[0];
-              const previewUrl = getFirstImageUrl(memory.image_url);
-              return (
-                <div
-                  key={memory.id}
-                  className={`big-memory-card ${!previewUrl ? 'no-image' : ''}`}
-                  onClick={() => navigate(`/memory/${memory.id}`, { state: { from: '/' } })}
-                >
-                  {previewUrl
-                    ? <img src={previewUrl} alt={memory.title} />
-                    : (
-                      <div
-                        className="memory-card-default-bg"
-                        style={{ background: `linear-gradient(145deg, ${displayCategory.color} 0%, ${displayCategory.color}dd 100%)` }}
-                      >
-                        {/* Scattered emoji pattern — evenly, widely distributed */}
-                        <span style={{ position:'absolute', fontSize:'54px', top:'-5%',    left:'-5%',    opacity:0.15, transform:'rotate(-12deg)', lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'28px', top:'12%',    left:'20%',    opacity:0.18, transform:'rotate(18deg)',  lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'40px', top:'5%',     left:'48%',    opacity:0.12, transform:'rotate(-8deg)',  lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'72px', top:'-10%',   right:'-5%',   opacity:0.14, transform:'rotate(22deg)',  lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'32px', top:'42%',    left:'5%',     opacity:0.2,  transform:'rotate(-15deg)', lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'20px', top:'38%',    left:'30%',    opacity:0.16, transform:'rotate(10deg)',  lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'36px', top:'45%',    left:'58%',    opacity:0.14, transform:'rotate(-20deg)', lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'48px', top:'35%',    right:'10%',   opacity:0.13, transform:'rotate(15deg)',  lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'50px', bottom:'-8%',  left:'12%',    opacity:0.12, transform:'rotate(25deg)',  lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'24px', bottom:'15%', left:'26%',    opacity:0.18, transform:'rotate(-18deg)', lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'30px', bottom:'8%',  left:'45%',    opacity:0.15, transform:'rotate(8deg)',   lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'64px', bottom:'-12%', right:'15%',   opacity:0.11, transform:'rotate(-22deg)', lineHeight:1 }}>{displayCategory.emoji}</span>
-                        <span style={{ position:'absolute', fontSize:'22px', bottom:'22%', right:'2%',    opacity:0.2,  transform:'rotate(12deg)',  lineHeight:1 }}>{displayCategory.emoji}</span>
-                      </div>
-                    )
-                  }
-                  <div className="memory-gradient-overlay"></div>
-                  {/* Category badges — white background with colored text */}
-                  <div className="memory-category-badges-container">
-                    {categories.map(cat => (
-                      <span key={cat.id} className="memory-category-badge" style={{ background: '#fff', color: cat.textColor }}>
-                        <span className="badge-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', lineHeight: 0, color: cat.textColor }}>{cat.icon}</span>
-                        {cat.name}
-                      </span>
-                    ))}
+        <div className="bento-grid">
+          {/* First Memory - Full Width */}
+          {memories.length > 0 && (() => {
+            const memory = memories[0];
+            const categoryIds = memory.category ? memory.category.split(',').filter(Boolean) : ['first'];
+            const categories = categoryIds.map(id => getCategoryInfo(id));
+            const displayCategory = categories.find(c => c.id !== 'first') || categories[0];
+            const previewUrl = getFirstImageUrl(memory.image_url);
+
+            return (
+              <div
+                key={memory.id}
+                className="bento-item bento-memory-large"
+                onClick={() => navigate(`/memory/${memory.id}`, { state: { from: '/' } })}
+              >
+                {previewUrl ? (
+                  <img src={previewUrl} alt={memory.title} className="bento-memory-img" />
+                ) : (
+                  <div className="bento-memory-default-bg" style={{ background: `linear-gradient(145deg, ${displayCategory.color} 0%, ${displayCategory.color}dd 100%)` }}>
+                    <span className="bento-memory-emoji">{displayCategory.emoji}</span>
                   </div>
-                  <div className="memory-card-content">
-                    <div className="memory-card-title">{memory.title}</div>
-                    <div className="memory-card-meta">
-                      {formatDate(memory.date)}
-                      {memory.created_by && <span> · added by {memory.created_by}</span>}
-                    </div>
+                )}
+                <div className="bento-memory-gradient"></div>
+                <div className="bento-memory-badge" style={{ background: 'rgba(255,255,255,0.92)', color: displayCategory.textColor }}>
+                  <span>{displayCategory.icon}</span> {displayCategory.name}
+                </div>
+                <div className="bento-memory-content">
+                  <div className="bento-memory-title">{memory.title}</div>
+                  <div className="bento-memory-meta">
+                    {formatDate(memory.date)}
+                    {memory.created_by && <span> · added by {memory.created_by}</span>}
                   </div>
                 </div>
-              );
-            })}
-
-            {memories.length > 5 && (
-              <div className="see-all-button-container">
-                <button className="see-all-button-large" onClick={() => navigate('/memories')}>
-                  See all
-                </button>
               </div>
-            )}
-          </>
-        )}
+            );
+          })()}
+
+          {/* Challenge Card - Left */}
+          {challenges.length > 0 && (() => {
+            const challenge = challenges[0];
+            const progress = calculateChallengeProgress(challenge);
+
+            return (
+              <div
+                key={challenge.id}
+                className="bento-item bento-challenge"
+                onClick={() => navigate('/challenges')}
+              >
+                <svg className="bento-challenge-bg-icon" width="130" height="130" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2c1 3-1 4.5-2 6-1.3 2-1 4 .5 5 .3-1.4 1-2 1-2 .6 1.4 2.5 2 2.5 4.2A5 5 0 0 1 9 20a6 6 0 0 1-3-11c1.3.4 1.5 1.3 1.5 1.3C6.8 7 8.5 4 12 2Z"/>
+                </svg>
+                <div className="bento-challenge-badge">🔥 Challenges</div>
+                <div className="bento-challenge-content">
+                  <div className="bento-challenge-title">{challenge.title}</div>
+                  <div className="bento-challenge-subtitle">
+                    Day {progress.currentDay} of {challenge.duration_days}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Memories Count Card - Right */}
+          <div
+            className="bento-item bento-memories-count"
+            onClick={() => navigate('/memories')}
+          >
+            <div className="bento-memories-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2D6FE0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="8" y="3" width="13" height="13" rx="2.5"/>
+                <rect x="3" y="8" width="13" height="13" rx="2.5" fill="#fff"/>
+                <circle cx="6.7" cy="11.6" r="1.1"/>
+                <path d="M3.4 19.5 6.8 16a1.4 1.4 0 0 1 1.9 0l2.9 2.6"/>
+              </svg>
+            </div>
+            <div className="bento-memories-content">
+              <div className="bento-memories-number">{memories.length} memories</div>
+              <div className="bento-memories-link">See all →</div>
+            </div>
+          </div>
+
+          {/* Second Memory - Full Width */}
+          {memories.length > 1 && (() => {
+            const memory = memories[1];
+            const categoryIds = memory.category ? memory.category.split(',').filter(Boolean) : ['first'];
+            const categories = categoryIds.map(id => getCategoryInfo(id));
+            const displayCategory = categories.find(c => c.id !== 'first') || categories[0];
+            const previewUrl = getFirstImageUrl(memory.image_url);
+
+            return (
+              <div
+                key={memory.id}
+                className="bento-item bento-memory-medium"
+                onClick={() => navigate(`/memory/${memory.id}`, { state: { from: '/' } })}
+              >
+                {previewUrl ? (
+                  <img src={previewUrl} alt={memory.title} className="bento-memory-img" />
+                ) : (
+                  <div className="bento-memory-default-bg" style={{ background: `linear-gradient(145deg, ${displayCategory.color} 0%, ${displayCategory.color}dd 100%)` }}>
+                    <span className="bento-memory-emoji">{displayCategory.emoji}</span>
+                  </div>
+                )}
+                <div className="bento-memory-gradient"></div>
+                <div className="bento-memory-badge" style={{ background: 'rgba(255,255,255,0.94)', color: displayCategory.textColor }}>
+                  <span>{displayCategory.icon}</span> {displayCategory.name}
+                </div>
+                <div className="bento-memory-content">
+                  <div className="bento-memory-title-small">{memory.title}</div>
+                  <div className="bento-memory-meta-small">
+                    {formatDate(memory.date)}
+                    {memory.created_by && <span> · added by {memory.created_by}</span>}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+        </div>
       </div>
 
       {/* Bottom navigation - always 3 items: Memories | + | Settings */}

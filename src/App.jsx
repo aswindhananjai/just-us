@@ -14,6 +14,11 @@ import Activity from './pages/Activity';
 import ManageThoughts from './pages/ManageThoughts';
 import Timer from './pages/Timer';
 import HitRoshanHari from './pages/HitRoshanHari';
+import Challenges from './pages/Challenges';
+import ChallengeDetail from './pages/ChallengeDetail';
+import AddMealLog from './pages/AddMealLog';
+import AllMealLogs from './pages/AllMealLogs';
+import LogDetail from './pages/LogDetail';
 
 function ProtectedRoute({ children }) {
   const [authenticated, setAuthenticated] = useState(null);
@@ -153,6 +158,54 @@ function AppContent() {
           element={
             <ProtectedRoute>
               <ManageThoughts />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/challenges"
+          element={
+            <ProtectedRoute>
+              <Challenges />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/challenge/:id"
+          element={
+            <ProtectedRoute>
+              <ChallengeDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/challenge/:id/log"
+          element={
+            <ProtectedRoute>
+              <AddMealLog />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/challenge/:id/log/:logId"
+          element={
+            <ProtectedRoute>
+              <AddMealLog />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/challenge/:id/logs"
+          element={
+            <ProtectedRoute>
+              <AllMealLogs />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/challenge/:id/log-detail/:logId"
+          element={
+            <ProtectedRoute>
+              <LogDetail />
             </ProtectedRoute>
           }
         />

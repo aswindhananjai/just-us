@@ -1,0 +1,321 @@
+/* Log Detail Page */
+
+.log-detail-page {
+  min-height: 100vh;
+  background: #fff;
+  padding-bottom: 30px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* Header */
+.log-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px 8px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+/* Content */
+.log-detail-content {
+  padding: 16px 20px;
+}
+
+/* Photo */
+.log-photo-container {
+  margin-bottom: 20px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(20, 35, 59, 0.12);
+}
+
+.log-photo-full {
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+  object-fit: cover;
+  display: block;
+}
+
+/* Meal Type Badge */
+.log-meal-type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(155deg, #F59E0B, #EA580C);
+  color: #fff;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  box-shadow: 0 6px 16px rgba(234, 88, 12, 0.28);
+}
+
+.meal-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.meal-type-label {
+  line-height: 1;
+}
+
+/* Meal Name */
+.log-meal-name {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: 'Fredoka', sans-serif;
+  color: #14233B;
+  line-height: 1.2;
+  margin-bottom: 24px;
+}
+
+/* Date & Time Row */
+.log-datetime-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.log-info-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #F8FAFC;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.log-info-item svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.log-info-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.log-info-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #8693A8;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.log-info-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #14233B;
+  line-height: 1.4;
+}
+
+/* Note Section */
+.log-note-section {
+  background: #F8FAFE;
+  border: 1px solid #EEF2F8;
+  border-radius: 20px;
+  padding: 18px;
+  margin-bottom: 30px;
+}
+
+.log-note-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #8693A8;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.log-note-content {
+  font-size: 15px;
+  font-weight: 600;
+  color: #14233B;
+  line-height: 1.6;
+}
+
+/* Action Buttons */
+.log-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 52px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+  border: none;
+}
+
+.action-btn:active {
+  transform: scale(0.98);
+}
+
+.edit-btn {
+  background: linear-gradient(160deg, #2D6FE0, #1B4FA8);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(45, 111, 224, 0.32);
+}
+
+.edit-btn:active {
+  box-shadow: 0 6px 16px rgba(45, 111, 224, 0.28);
+}
+
+.delete-btn {
+  background: #FCE9F0;
+  color: #E0556F;
+  border: 1px solid #FECDD8;
+}
+
+.delete-btn:active {
+  background: #FBD5E0;
+}
+
+/* Delete Modal */
+.delete-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 20, 40, 0.82);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeInOverlay 0.2s ease both;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.delete-modal {
+  background: #fff;
+  border-radius: 28px;
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 340px;
+  text-align: center;
+  box-shadow: 0 28px 60px rgba(0, 0, 0, 0.4);
+  animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes modalPop {
+  0% {
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.delete-modal-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #FCE9F0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.delete-modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  font-family: 'Fredoka', sans-serif;
+  color: #14233B;
+  margin-bottom: 10px;
+}
+
+.delete-modal-message {
+  font-size: 14px;
+  font-weight: 600;
+  color: #6B7A93;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.modal-btn {
+  flex: 1;
+  height: 48px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.modal-btn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
+  background: #F4F8FE;
+  border: 1px solid #E8EEF7;
+  color: #5B6B85;
+}
+
+.cancel-btn:active:not(:disabled) {
+  background: #EAF1FC;
+}
+
+.confirm-delete-btn {
+  background: linear-gradient(155deg, #E0556F, #C2487A);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(224, 85, 111, 0.32);
+}
+
+.confirm-delete-btn:active:not(:disabled) {
+  box-shadow: 0 6px 16px rgba(224, 85, 111, 0.28);
+}
+
+.spinner-small {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

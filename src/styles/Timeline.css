@@ -642,3 +642,235 @@
     max-width: 288px;
   }
 }
+
+/* ====================
+   BENTO BOX LAYOUT
+   ==================== */
+
+.for-you-section {
+  margin-top: 0;
+  background: #fff;
+  border-radius: 0;
+  padding: 24px 22px 0;
+  position: relative;
+  z-index: 5;
+}
+
+.for-you-title {
+  font-size: 19px;
+  font-weight: 800;
+  margin-bottom: 16px;
+  color: #14233B;
+}
+
+.bento-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* Bento items */
+.bento-item {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+}
+
+.bento-item:active {
+  transform: scale(0.98);
+}
+
+/* Large memory card - full width */
+.bento-memory-large {
+  grid-column: 1 / 3;
+  position: relative;
+  height: 172px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 26px rgba(20, 35, 59, 0.12);
+}
+
+.bento-memory-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bento-memory-default-bg {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.bento-memory-emoji {
+  font-size: 90px;
+  opacity: 0.15;
+  line-height: 1;
+}
+
+.bento-memory-gradient {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 38%, rgba(11, 20, 40, 0.82) 100%);
+}
+
+.bento-memory-badge {
+  position: absolute;
+  top: 13px;
+  left: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 5px 11px;
+  z-index: 2;
+}
+
+.bento-memory-badge span {
+  line-height: 1;
+}
+
+.bento-memory-content {
+  position: absolute;
+  left: 15px;
+  right: 15px;
+  bottom: 13px;
+  color: #fff;
+  z-index: 2;
+}
+
+.bento-memory-title {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.bento-memory-meta {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-top: 3px;
+}
+
+/* Challenge card - left column */
+.bento-challenge {
+  grid-column: 1 / 2;
+  border-radius: 24px;
+  background: linear-gradient(155deg, #F59E0B 0%, #EA580C 100%);
+  padding: 18px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 12px 24px rgba(234, 88, 12, 0.28);
+}
+
+.bento-challenge-bg-icon {
+  position: absolute;
+  right: -14px;
+  top: -14px;
+  opacity: 0.16;
+  color: #fff;
+}
+
+.bento-challenge-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  position: relative;
+}
+
+.bento-challenge-content {
+  position: relative;
+}
+
+.bento-challenge-title {
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.bento-challenge-subtitle {
+  font-size: 11.5px;
+  font-weight: 700;
+  opacity: 0.9;
+  margin-top: 6px;
+}
+
+/* Memories count card - right column */
+.bento-memories-count {
+  grid-column: 2 / 3;
+  border-radius: 24px;
+  background: #F4F8FE;
+  border: 1px solid #EAF1FC;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 150px;
+}
+
+.bento-memories-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(20, 35, 59, 0.06);
+}
+
+.bento-memories-content {
+
+}
+
+.bento-memories-number {
+  font-size: 14px;
+  font-weight: 800;
+  color: #14233B;
+  line-height: 1.25;
+}
+
+.bento-memories-link {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #8693A8;
+  margin-top: 4px;
+}
+
+/* Medium memory card - full width */
+.bento-memory-medium {
+  grid-column: 1 / 3;
+  position: relative;
+  height: 140px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 12px 26px rgba(20, 35, 59, 0.12);
+}
+
+.bento-memory-title-small {
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.bento-memory-meta-small {
+  font-size: 11.5px;
+  font-weight: 600;
+  opacity: 0.85;
+  margin-top: 3px;
+}

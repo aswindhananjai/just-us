@@ -1,0 +1,259 @@
+/* Challenges List Page */
+
+.challenges-page {
+  min-height: 100vh;
+  background: #fff;
+  padding-bottom: 30px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* Header */
+.challenges-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px 8px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+.back-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  background: #F4F8FE;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #14233B;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+}
+
+.back-button:active {
+  transform: scale(0.95);
+  background: #EAF1FC;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.header-title {
+  font-size: 21px;
+  font-weight: 800;
+  font-family: 'Fredoka', sans-serif;
+  color: #14233B;
+  line-height: 1;
+}
+
+.header-subtitle {
+  font-size: 12px;
+  color: #8693A8;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* Content */
+.challenges-content {
+  padding: 16px 20px;
+}
+
+/* Large Challenge Card */
+.challenge-card-large {
+  position: relative;
+  background: linear-gradient(155deg, #F59E0B 0%, #EA580C 100%);
+  border-radius: 26px;
+  padding: 22px 20px;
+  color: #fff;
+  margin-bottom: 18px;
+  overflow: hidden;
+  box-shadow: 0 14px 30px rgba(234, 88, 12, 0.32);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+}
+
+.challenge-card-large:active {
+  transform: scale(0.98);
+  box-shadow: 0 10px 22px rgba(234, 88, 12, 0.28);
+}
+
+.challenge-card-bg-icon {
+  position: absolute;
+  right: -14px;
+  top: 26px;
+  opacity: 0.16;
+  color: #fff;
+  pointer-events: none;
+}
+
+/* Card Header */
+.challenge-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.challenge-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  padding: 6px 14px;
+}
+
+/* Card Main */
+.challenge-card-main {
+  margin-bottom: 18px;
+  position: relative;
+}
+
+.challenge-card-title {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: 'Fredoka', sans-serif;
+  line-height: 1.2;
+  margin-bottom: 6px;
+}
+
+.challenge-card-subtitle {
+  font-size: 13.5px;
+  font-weight: 600;
+  opacity: 0.9;
+  line-height: 1.4;
+}
+
+/* Progress Bar */
+.challenge-progress-bar {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 12px;
+  position: relative;
+}
+
+.challenge-progress-fill {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
+}
+
+/* Stats */
+.challenge-card-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.challenge-stat-text {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.95;
+}
+
+.challenge-streak-text {
+  font-size: 13px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 4px 11px;
+}
+
+/* Footer */
+.challenge-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.24);
+  position: relative;
+}
+
+.challenge-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.challenge-participant {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.88;
+}
+
+/* Footer Text */
+.challenges-footer-text {
+  text-align: center;
+  font-size: 13px;
+  color: #8693A8;
+  font-weight: 600;
+  margin-top: 26px;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 80px 30px;
+}
+
+.empty-emoji {
+  font-size: 72px;
+  margin-bottom: 18px;
+  line-height: 1;
+}
+
+.empty-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #14233B;
+  margin-bottom: 8px;
+}
+
+.empty-subtitle {
+  font-size: 14px;
+  color: #8693A8;
+  font-weight: 600;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #EEF2F8;
+  border-top: 3px solid #2D6FE0;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,169 @@
+/* All Meal Logs Page */
+
+.all-meal-logs-page {
+  min-height: 100vh;
+  background: #fff;
+  padding-bottom: 30px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+/* Header */
+.all-logs-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px 8px;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 10;
+}
+
+/* Content */
+.all-logs-content {
+  padding: 16px 20px;
+}
+
+/* Date Group */
+.log-date-group {
+  margin-bottom: 22px;
+}
+
+.log-date-header {
+  font-size: 12px;
+  font-weight: 800;
+  color: #9AA7BD;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+/* Log Item Card */
+.log-item-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border: 1px solid #EEF2F8;
+  border-radius: 20px;
+  padding: 11px;
+  margin-bottom: 10px;
+  box-shadow: 0 6px 16px rgba(20, 35, 59, 0.05);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+}
+
+.log-item-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 12px rgba(20, 35, 59, 0.08);
+}
+
+.log-item-photo {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  object-fit: cover;
+  flex: none;
+}
+
+.log-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.log-item-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: #14233B;
+  line-height: 1.2;
+}
+
+.log-item-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #5B6B85;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.log-item-time {
+  font-size: 11px;
+  color: #8693A8;
+  font-weight: 600;
+  margin-top: 3px;
+}
+
+/* Load More */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.load-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: #F4F8FE;
+  border: 1px solid #E8EEF7;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #5B6B85;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.15s;
+}
+
+.load-more-btn:active:not(:disabled) {
+  transform: scale(0.96);
+  background: #EAF1FC;
+}
+
+.load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinner-small {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #E8EEF7;
+  border-top: 2px solid #2D6FE0;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 80px 30px;
+}
+
+.empty-emoji {
+  font-size: 72px;
+  margin-bottom: 18px;
+  line-height: 1;
+}
+
+.empty-title {
+  font-size: 19px;
+  font-weight: 800;
+  color: #14233B;
+  margin-bottom: 8px;
+}
+
+.empty-subtitle {
+  font-size: 14px;
+  color: #8693A8;
+  font-weight: 600;
+}
