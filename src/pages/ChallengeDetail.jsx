@@ -67,19 +67,36 @@ export default function ChallengeDetail() {
     const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
     const currentDay = Math.min(daysPassed, challenge.duration_days);
 
-    // Calculate streak (consecutive days with at least one log)
+    // Calculate streak (consecutive days with ALL 3 meals logged)
     let streak = 0;
-    const sortedDates = [...new Set(mealLogs.map(log => log.log_date))].sort().reverse();
-    const todayStr = new Date().toISOString().split('T')[0];
 
+    // Group logs by date
+    const logsByDate = mealLogs.reduce((acc, log) => {
+      if (!acc[log.log_date]) acc[log.log_date] = [];
+      acc[log.log_date].push(log.meal_type);
+      return acc;
+    }, {});
+
+    // Check streak from today backwards
     for (let i = 0; i < currentDay; i++) {
       const checkDate = new Date();
       checkDate.setDate(checkDate.getDate() - i);
       const dateStr = checkDate.toISOString().split('T')[0];
 
-      if (sortedDates.includes(dateStr)) {
+      // Check if this date is before challenge start
+      const checkDateTime = new Date(dateStr);
+      if (checkDateTime < startDate) break;
+
+      const mealsForDay = logsByDate[dateStr] || [];
+      const hasBreakfast = mealsForDay.includes('breakfast');
+      const hasLunch = mealsForDay.includes('lunch');
+      const hasDinner = mealsForDay.includes('dinner');
+
+      // All 3 meals must be logged for the streak to continue
+      if (hasBreakfast && hasLunch && hasDinner) {
         streak++;
       } else {
+        // Streak broken
         break;
       }
     }
@@ -100,8 +117,12 @@ export default function ChallengeDetail() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Get all log dates
-    const logDates = new Set(mealLogs.map(log => log.log_date));
+    // Group logs by date and meal type
+    const logsByDate = mealLogs.reduce((acc, log) => {
+      if (!acc[log.log_date]) acc[log.log_date] = [];
+      acc[log.log_date].push(log.meal_type);
+      return acc;
+    }, {});
 
     for (let i = 0; i < challenge.duration_days; i++) {
       const currentDate = new Date(startDate);
@@ -112,7 +133,14 @@ export default function ChallengeDetail() {
       const isPast = currentDate < today;
       const isToday = currentDate.getTime() === today.getTime();
       const isFuture = currentDate > today;
-      const hasLog = logDates.has(dateStr);
+
+      // Check meal completion for this day
+      const mealsForDay = logsByDate[dateStr] || [];
+      const hasBreakfast = mealsForDay.includes('breakfast');
+      const hasLunch = mealsForDay.includes('lunch');
+      const hasDinner = mealsForDay.includes('dinner');
+      const allMealsLogged = hasBreakfast && hasLunch && hasDinner;
+      const someMealsLogged = mealsForDay.length > 0 && !allMealsLogged;
 
       days.push({
         day: i + 1,
@@ -120,7 +148,9 @@ export default function ChallengeDetail() {
         isPast,
         isToday,
         isFuture,
-        hasLog
+        allMealsLogged,
+        someMealsLogged,
+        mealsCount: mealsForDay.length
       });
     }
 
@@ -292,13 +322,16 @@ export default function ChallengeDetail() {
             {calendarDays.map((dayData) => (
               <div
                 key={dayData.day}
-                className={`calendar-day ${dayData.isToday ? 'today' : ''} ${dayData.hasLog ? 'done' : ''} ${dayData.isFuture ? 'future' : ''}`}
+                className={`calendar-day ${dayData.isToday ? 'today' : ''} ${dayData.allMealsLogged ? 'done' : ''} ${dayData.someMealsLogged ? 'partial' : ''} ${dayData.isFuture ? 'future' : ''}`}
               >
                 <span className="day-number">{dayData.day}</span>
-                {dayData.hasLog && !dayData.isToday && (
+                {dayData.allMealsLogged && !dayData.isToday && (
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 6 9 17l-5-5"/>
                   </svg>
+                )}
+                {dayData.someMealsLogged && !dayData.isToday && !dayData.allMealsLogged && (
+                  <span className="partial-indicator">{dayData.mealsCount}/3</span>
                 )}
                 {dayData.isToday && <span className="today-emoji">🔥</span>}
               </div>

@@ -239,6 +239,12 @@
   color: #C2410C;
 }
 
+.calendar-day.partial {
+  background: #FEF3C7;
+  border: 1px solid #FCD34D;
+  color: #92400E;
+}
+
 .calendar-day.today {
   background: linear-gradient(155deg, #F59E0B, #EA580C);
   color: #fff;
@@ -249,6 +255,12 @@
   background: #F8FAFC;
   border: 1px dashed #E2E8F0;
   color: #CBD5E1;
+}
+
+.partial-indicator {
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .calendar-day.today .today-emoji {

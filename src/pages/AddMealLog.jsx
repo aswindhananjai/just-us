@@ -24,6 +24,7 @@ export default function AddMealLog() {
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
   useEffect(() => {
     if (logId) {
@@ -63,9 +64,27 @@ export default function AddMealLog() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoPreview(reader.result);
+        setShowPhotoOptions(false);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handlePhotoOptionClick = () => {
+    if (photoPreview) {
+      // If photo already exists, show options to change or remove
+      setShowPhotoOptions(true);
+    } else {
+      // If no photo, show options to add
+      setShowPhotoOptions(true);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setPhotoFile(null);
+    setPhotoPreview('');
+    setFormData({ ...formData, photo_url: '' });
+    setShowPhotoOptions(false);
   };
 
   const uploadPhoto = async () => {
@@ -189,12 +208,23 @@ export default function AddMealLog() {
         <div className="photo-upload-section">
           <input
             type="file"
-            id="photo-input"
+            id="photo-upload-input"
             accept="image/*"
             onChange={handlePhotoChange}
             style={{ display: 'none' }}
           />
-          <label htmlFor="photo-input" className={`photo-upload-area ${photoPreview ? 'has-photo' : ''}`}>
+          <input
+            type="file"
+            id="photo-camera-input"
+            accept="image/*"
+            capture="environment"
+            onChange={handlePhotoChange}
+            style={{ display: 'none' }}
+          />
+          <div
+            className={`photo-upload-area ${photoPreview ? 'has-photo' : ''}`}
+            onClick={handlePhotoOptionClick}
+          >
             {photoPreview ? (
               <img src={photoPreview} alt="Preview" className="photo-preview" />
             ) : (
@@ -205,7 +235,7 @@ export default function AddMealLog() {
                 <span className="photo-upload-text">Add a photo of your meal</span>
               </>
             )}
-          </label>
+          </div>
         </div>
 
         {/* Meal Type Selector */}
@@ -308,6 +338,53 @@ export default function AddMealLog() {
           </button>
         </div>
       </form>
+
+      {/* Photo Options Modal */}
+      {showPhotoOptions && (
+        <div className="photo-options-overlay" onClick={() => setShowPhotoOptions(false)}>
+          <div className="photo-options-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="photo-options-header">
+              {photoPreview ? 'Change Photo' : 'Add Photo'}
+            </div>
+            <div className="photo-options-buttons">
+              <label htmlFor="photo-camera-input" className="photo-option-btn camera-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+                <span>Take Photo</span>
+              </label>
+              <label htmlFor="photo-upload-input" className="photo-option-btn upload-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/>
+                  <circle cx="8.5" cy="8.5" r="1.5"/>
+                  <path d="m21 15-5-5L5 21"/>
+                </svg>
+                <span>Choose from Gallery</span>
+              </label>
+              {photoPreview && (
+                <button
+                  type="button"
+                  className="photo-option-btn remove-btn"
+                  onClick={handleRemovePhoto}
+                >
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18M8 6V4.5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2V6m2 0v13a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+                  </svg>
+                  <span>Remove Photo</span>
+                </button>
+              )}
+            </div>
+            <button
+              type="button"
+              className="photo-options-cancel"
+              onClick={() => setShowPhotoOptions(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
