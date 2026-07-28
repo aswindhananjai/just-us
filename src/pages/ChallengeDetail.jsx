@@ -351,7 +351,7 @@ export default function ChallengeDetail() {
                 <span className="legend-dot done"></span>done
               </span>
               <span className="legend-item">
-                <span className="legend-emoji">🔥</span>today
+                <span className="legend-dot partial"></span>not done
               </span>
             </div>
           </div>

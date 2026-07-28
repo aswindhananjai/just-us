@@ -207,11 +207,11 @@
 }
 
 .legend-dot.done {
-  background: #FDBA74;
+  background: #F59E0B;
 }
 
-.legend-emoji {
-  font-size: 11px;
+.legend-dot.partial {
+  background: #FDBA74;
 }
 
 .calendar-day-headers {
