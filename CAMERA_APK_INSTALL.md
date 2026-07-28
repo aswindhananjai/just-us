@@ -1,14 +1,16 @@
-# Camera-Enabled APK Installation Guide
+# Just Us v2 - Camera & Password Fix
 
 ## What's New in This APK?
 
-This updated APK (`just-us-camera.apk`) now includes **direct camera access** for meal photo logging!
+This updated APK (`just-us-v2.apk`) includes major improvements!
 
 ### New Features:
 - ✅ **Direct Camera Launch**: When you click "Take Photo" in the meal log form, it now opens your camera app directly
 - ✅ **Smart Chooser**: Shows both "Camera" and "Choose from Gallery" options
 - ✅ **Full Camera Permissions**: Properly configured Android permissions for camera access
 - ✅ **FileProvider Support**: Secure file handling for camera photos
+- ✅ **No Password Re-prompt on Camera**: App won't ask for password when returning from camera/file picker (within 3 seconds)
+- ✅ **Smart Security**: Still locks app when going to background for longer periods (>3 seconds)
 
 ## Installation Steps
 
@@ -19,7 +21,7 @@ Before installing the new APK, you **must** uninstall the previous version:
 - Confirm uninstallation
 
 ### 2. Install the New APK
-1. Transfer `just-us-camera.apk` to your Android device
+1. Transfer `just-us-v2.apk` to your Android device
 2. Open the APK file on your device
 3. If prompted, allow installation from unknown sources
 4. Tap "Install"
@@ -75,7 +77,20 @@ On first launch, the app will request:
 - Make sure you uninstalled the old version first
 - Enable "Install from Unknown Sources" in your Android settings
 
+## What Changed?
+
+### Web App (src/App.jsx):
+- Updated auto-lock behavior to exclude quick app switches (like camera)
+- Added 3-second grace period before re-locking
+- Maintains security for actual backgrounding
+
+### Android App (MainActivity.java):
+- Enhanced file chooser to detect camera capture intent
+- Direct camera launch using MediaStore.ACTION_IMAGE_CAPTURE
+- FileProvider integration for secure photo handling
+
 ## File Location
-APK file: `just-us-camera.apk` (3.0 MB)
+APK file: `just-us-v2.apk` (3.0 MB)
 
 Build date: July 28, 2026
+Version: 2.0

@@ -82,11 +82,17 @@ function AppContent() {
       } else {
         // When page becomes visible again (app comes to foreground)
         const backgroundedAt = localStorage.getItem('justus_backgrounded_at');
+        const timeSinceBackground = Date.now() - parseInt(backgroundedAt || '0');
 
-        if (backgroundedAt && isAuthenticated() && location.pathname !== '/lock') {
+        // Don't lock if returning quickly (within 3 seconds) - likely from camera/file picker
+        // This prevents the annoying re-lock when taking photos or selecting files
+        if (backgroundedAt && isAuthenticated() && location.pathname !== '/lock' && timeSinceBackground > 3000) {
           // Lock the app immediately, setting isLocked to true and calling logout
           logout();
           setIsLocked(true);
+          localStorage.removeItem('justus_backgrounded_at');
+        } else if (timeSinceBackground <= 3000) {
+          // Clear the background time without locking
           localStorage.removeItem('justus_backgrounded_at');
         }
       }
