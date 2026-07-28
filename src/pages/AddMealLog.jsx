@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
+import { uploadImage } from '../utils/cloudinary';
 import { getCurrentUser } from '../utils/auth';
 import '../styles/AddMealLog.css';
 
@@ -31,6 +32,9 @@ export default function AddMealLog() {
   });
 
   useEffect(() => {
+    // Scroll to top when component mounts
+    window.scrollTo(0, 0);
+
     if (logId) {
       fetchLogData();
     }
@@ -96,26 +100,14 @@ export default function AddMealLog() {
 
     try {
       setUploading(true);
-      setErrors({ ...errors, photo: '' }); // Clear previous errors
+      setErrors(prev => ({ ...prev, photo: '' })); // Clear previous errors
 
-      const fileExt = photoFile.name.split('.').pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `meal-logs/${fileName}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('memories')
-        .upload(filePath, photoFile);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('memories')
-        .getPublicUrl(filePath);
-
-      return publicUrl;
+      // Upload to Cloudinary
+      const url = await uploadImage(photoFile);
+      return url;
     } catch (error) {
       console.error('Error uploading photo:', error);
-      setErrors({ ...errors, photo: 'Failed to upload photo. Please try again.' });
+      setErrors(prev => ({ ...prev, photo: 'Failed to upload photo. Please try again.' }));
       throw error; // Re-throw to stop the save flow
     } finally {
       setUploading(false);
@@ -130,12 +122,30 @@ export default function AddMealLog() {
 
     // Validate meal name
     if (!formData.meal_name.trim()) {
-      setErrors({ ...errors, mealName: 'Meal name is mandatory' });
+      setErrors(prev => ({ ...prev, mealName: 'Meal name is mandatory' }));
       return;
     }
 
     try {
       setSaving(true);
+
+      // Check for duplicate meal entry (only when creating new log, not editing)
+      if (!isEditMode) {
+        const { data: existingLogs, error: checkError } = await supabase
+          .from('meal_logs')
+          .select('id')
+          .eq('challenge_id', challengeId)
+          .eq('meal_type', formData.meal_type)
+          .eq('log_date', formData.log_date);
+
+        if (checkError) throw checkError;
+
+        if (existingLogs && existingLogs.length > 0) {
+          alert(`You already logged ${formData.meal_type} for this date. Please choose a different meal type or date.`);
+          setSaving(false);
+          return;
+        }
+      }
 
       // Upload photo if new one selected
       const photoUrl = await uploadPhoto();
@@ -279,7 +289,7 @@ export default function AddMealLog() {
             onChange={(e) => {
               setFormData({ ...formData, meal_name: e.target.value });
               if (errors.mealName) {
-                setErrors({ ...errors, mealName: '' });
+                setErrors(prev => ({ ...prev, mealName: '' }));
               }
             }}
           />

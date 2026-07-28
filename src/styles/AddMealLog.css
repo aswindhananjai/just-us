@@ -200,10 +200,13 @@
   display: flex;
   gap: 12px;
   margin-bottom: 18px;
+  width: 100%;
 }
 
 .flex-1 {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .form-input-with-icon {
