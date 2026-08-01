@@ -48,8 +48,8 @@ export default function Challenges() {
           return acc;
         }, {});
 
-        // Check streak from today backwards
-        for (let i = 0; i < currentDay; i++) {
+        // Check streak from yesterday backwards (exclude today since it's ongoing)
+        for (let i = 1; i < currentDay; i++) {
           const checkDate = new Date();
           checkDate.setDate(checkDate.getDate() - i);
           const dateStr = checkDate.toISOString().split('T')[0];

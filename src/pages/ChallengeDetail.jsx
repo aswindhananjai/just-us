@@ -59,7 +59,7 @@ export default function ChallengeDetail() {
   };
 
   const calculateProgress = () => {
-    if (!challenge) return { currentDay: 0, totalDays: 30, percentage: 0, streak: 0, completedDays: 0 };
+    if (!challenge) return { currentDay: 0, totalDays: 30, percentage: 0, streak: 0, completedDays: 0, streakDates: [] };
 
     // Parse date string correctly to avoid timezone issues
     const [year, month, day] = challenge.start_date.split('-').map(Number);
@@ -76,6 +76,7 @@ export default function ChallengeDetail() {
     // Calculate streak (consecutive days with ALL 3 meals logged)
     let streak = 0;
     let completedDays = 0;
+    const streakDates = [];
 
     // Group logs by date
     const logsByDate = mealLogs.reduce((acc, log) => {
@@ -84,8 +85,8 @@ export default function ChallengeDetail() {
       return acc;
     }, {});
 
-    // Check streak from today backwards
-    for (let i = 0; i < currentDay; i++) {
+    // Check streak from yesterday backwards (exclude today since it's ongoing)
+    for (let i = 1; i < currentDay; i++) {
       const checkDate = new Date();
       checkDate.setDate(checkDate.getDate() - i);
       const dateStr = checkDate.toISOString().split('T')[0];
@@ -102,6 +103,7 @@ export default function ChallengeDetail() {
       // All 3 meals must be logged for the streak to continue
       if (hasBreakfast && hasLunch && hasDinner) {
         streak++;
+        streakDates.push(dateStr);
       } else {
         // Streak broken
         break;
@@ -132,7 +134,8 @@ export default function ChallengeDetail() {
       totalDays: challenge.duration_days,
       percentage: Math.round((completedDays / challenge.duration_days) * 100),
       streak,
-      completedDays
+      completedDays,
+      streakDates
     };
   };
 
@@ -374,36 +377,44 @@ export default function ChallengeDetail() {
             ))}
 
             {/* Render actual challenge days */}
-            {calendarDays.map((dayData) => (
-              <div
-                key={dayData.day}
-                className={`calendar-day ${dayData.isToday && dayData.allMealsLogged ? 'today' : ''} ${dayData.allMealsLogged && !dayData.isToday ? 'done' : ''} ${dayData.someMealsLogged && !dayData.allMealsLogged ? 'partial' : ''} ${dayData.isFuture ? 'future' : ''}`}
-              >
-                <span className="day-number">{dayData.day}</span>
+            {calendarDays.map((dayData) => {
+              const isInStreak = progress.streakDates.includes(dayData.date);
 
-                {/* Show fire emoji ONLY if today AND all 3 meals logged */}
-                {dayData.isToday && dayData.allMealsLogged && (
-                  <span className="today-emoji">🔥</span>
-                )}
+              return (
+                <div
+                  key={dayData.day}
+                  className={`calendar-day ${dayData.isToday && dayData.allMealsLogged ? 'today' : ''} ${dayData.allMealsLogged && !dayData.isToday ? 'done' : ''} ${dayData.someMealsLogged && !dayData.allMealsLogged ? 'partial' : ''} ${dayData.isFuture ? 'future' : ''}`}
+                >
+                  <span className="day-number">{dayData.day}</span>
 
-                {/* Show X/3 for today if not all meals logged */}
-                {dayData.isToday && !dayData.allMealsLogged && dayData.someMealsLogged && (
-                  <span className="partial-indicator">{dayData.mealsCount}/3</span>
-                )}
+                  {/* Show fire emoji ONLY if today AND all 3 meals logged */}
+                  {dayData.isToday && dayData.allMealsLogged && (
+                    <span className="today-emoji">🔥</span>
+                  )}
 
-                {/* Show checkmark for completed non-today days */}
-                {!dayData.isToday && dayData.allMealsLogged && (
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 6 9 17l-5-5"/>
-                  </svg>
-                )}
+                  {/* Show X/3 for today if not all meals logged */}
+                  {dayData.isToday && !dayData.allMealsLogged && dayData.someMealsLogged && (
+                    <span className="partial-indicator">{dayData.mealsCount}/3</span>
+                  )}
 
-                {/* Show X/3 for partial non-today days */}
-                {!dayData.isToday && !dayData.isFuture && dayData.someMealsLogged && !dayData.allMealsLogged && (
-                  <span className="partial-indicator">{dayData.mealsCount}/3</span>
-                )}
-              </div>
-            ))}
+                  {/* Show fire emoji for days in current streak, checkmark for other completed days */}
+                  {!dayData.isToday && dayData.allMealsLogged && (
+                    isInStreak ? (
+                      <span className="streak-emoji">🔥</span>
+                    ) : (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 6 9 17l-5-5"/>
+                      </svg>
+                    )
+                  )}
+
+                  {/* Show X/3 for partial non-today days */}
+                  {!dayData.isToday && !dayData.isFuture && dayData.someMealsLogged && !dayData.allMealsLogged && (
+                    <span className="partial-indicator">{dayData.mealsCount}/3</span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../utils/supabase';
 import { uploadImage } from '../utils/cloudinary';
 import { getCurrentUser } from '../utils/auth';
+import ChallengeCompleteModal from '../components/ChallengeCompleteModal';
 import '../styles/AddMealLog.css';
 
 export default function AddMealLog() {
@@ -26,6 +27,8 @@ export default function AddMealLog() {
   const [saving, setSaving] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
+  const [challengeTitle, setChallengeTitle] = useState('');
   const [errors, setErrors] = useState({
     mealName: '',
     photo: ''
@@ -114,6 +117,64 @@ export default function AddMealLog() {
     }
   };
 
+  const checkChallengeCompletion = async () => {
+    try {
+      // Fetch challenge details
+      const { data: challenge, error: challengeError } = await supabase
+        .from('challenges')
+        .select('title, duration_days, start_date')
+        .eq('id', challengeId)
+        .single();
+
+      if (challengeError) throw challengeError;
+
+      // Check if we're on day 30 (or the final day)
+      const [year, month, day] = challenge.start_date.split('-').map(Number);
+      const startDate = new Date(year, month - 1, day);
+      startDate.setHours(0, 0, 0, 0);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const diffTime = today.getTime() - startDate.getTime();
+      const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+      const currentDay = Math.max(1, Math.min(daysPassed, challenge.duration_days));
+
+      // Only check if we're at or past day 30
+      if (currentDay < challenge.duration_days) {
+        return false;
+      }
+
+      // Count total meal logs for this challenge
+      const { data: logs, error: logsError } = await supabase
+        .from('meal_logs')
+        .select('id')
+        .eq('challenge_id', challengeId);
+
+      if (logsError) throw logsError;
+
+      // Check if all meals are logged (30 days × 3 meals = 90)
+      const totalMealsNeeded = challenge.duration_days * 3;
+      const isComplete = logs && logs.length >= totalMealsNeeded;
+
+      if (isComplete) {
+        setChallengeTitle(challenge.title);
+        setShowCompleteModal(true);
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('Error checking challenge completion:', error);
+      return false;
+    }
+  };
+
+  const handleCompleteModalClose = () => {
+    setShowCompleteModal(false);
+    navigate(`/challenge/${challengeId}`);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -189,6 +250,15 @@ export default function AddMealLog() {
           }]);
 
         if (error) throw error;
+      }
+
+      // Check if challenge is now complete (only for new logs, not edits)
+      if (!isEditMode) {
+        const isComplete = await checkChallengeCompletion();
+        if (isComplete) {
+          // Modal will handle navigation
+          return;
+        }
       }
 
       navigate(`/challenge/${challengeId}`);
@@ -414,6 +484,13 @@ export default function AddMealLog() {
           </div>
         </div>
       )}
+
+      {/* Challenge Complete Modal */}
+      <ChallengeCompleteModal
+        isOpen={showCompleteModal}
+        onClose={handleCompleteModalClose}
+        challengeTitle={challengeTitle}
+      />
     </div>
   );
 }
