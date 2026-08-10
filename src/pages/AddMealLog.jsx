@@ -31,7 +31,8 @@ export default function AddMealLog() {
   const [challengeTitle, setChallengeTitle] = useState('');
   const [errors, setErrors] = useState({
     mealName: '',
-    photo: ''
+    photo: '',
+    submit: ''
   });
 
   useEffect(() => {
@@ -179,7 +180,7 @@ export default function AddMealLog() {
     e.preventDefault();
 
     // Clear previous errors
-    setErrors({ mealName: '', photo: '' });
+    setErrors({ mealName: '', photo: '', submit: '' });
 
     // Validate meal name
     if (!formData.meal_name.trim()) {
@@ -264,7 +265,22 @@ export default function AddMealLog() {
       navigate(`/challenge/${challengeId}`);
     } catch (error) {
       console.error('Error saving log:', error);
-      // Don't show alert anymore - error is already displayed inline
+
+      // Display user-friendly error message
+      let errorMessage = 'Failed to save meal log. Please try again.';
+
+      if (error.message) {
+        // Check for common database errors
+        if (error.message.includes('duplicate') || error.message.includes('unique')) {
+          errorMessage = `You already logged ${formData.meal_type} for this date and time. Please use a different time or edit the existing log.`;
+        } else if (error.message.includes('foreign key') || error.message.includes('does not exist')) {
+          errorMessage = 'Challenge not found. Please return to the home page and try again.';
+        } else if (error.message.includes('invalid') || error.message.includes('violates')) {
+          errorMessage = 'Invalid data provided. Please check your entries and try again.';
+        }
+      }
+
+      setErrors(prev => ({ ...prev, submit: errorMessage }));
     } finally {
       setSaving(false);
     }
@@ -413,6 +429,13 @@ export default function AddMealLog() {
             onChange={(e) => setFormData({ ...formData, note: e.target.value })}
           />
         </div>
+
+        {/* Submit Error Message */}
+        {errors.submit && (
+          <div className="error-message submit-error">
+            {errors.submit}
+          </div>
+        )}
 
         {/* Submit Button */}
         <div className="form-submit-container">

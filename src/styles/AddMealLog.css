@@ -169,6 +169,17 @@
   padding-left: 4px;
 }
 
+.error-message.submit-error {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px 16px;
+  background: #FEF8F9;
+  border: 1.5px solid #FECDD8;
+  border-radius: 14px;
+  margin: 0 0 16px 0;
+  text-align: center;
+}
+
 .form-textarea {
   width: 100%;
   background: #F6F9FD;
