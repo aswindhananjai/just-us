@@ -311,7 +311,46 @@ export default function ChallengeDetail() {
   };
 
   const getMealLabel = (mealType) => {
+    if (!mealType) return '';
     return mealType.charAt(0).toUpperCase() + mealType.slice(1);
+  };
+
+  const getActivityEmoji = (activityType) => {
+    switch (activityType) {
+      case 'walk': return '🚶';
+      case 'run': return '🏃';
+      case 'gym': return '🏋️';
+      case 'yoga': return '🧘';
+      case 'cycle': return '🚴';
+      default: return '💪';
+    }
+  };
+
+  const getActivityLabel = (activityType) => {
+    if (!activityType) return '';
+    return activityType.charAt(0).toUpperCase() + activityType.slice(1);
+  };
+
+  const getLogEmoji = (log) => {
+    if (log.log_type === 'meal') {
+      return getMealEmoji(log.meal_type);
+    } else if (log.log_type === 'exercise') {
+      return getActivityEmoji(log.activity_type);
+    } else if (log.log_type === 'fruit') {
+      return '🍎';
+    }
+    return '📝';
+  };
+
+  const getLogLabel = (log) => {
+    if (log.log_type === 'meal') {
+      return getMealLabel(log.meal_type);
+    } else if (log.log_type === 'exercise') {
+      return getActivityLabel(log.activity_type);
+    } else if (log.log_type === 'fruit') {
+      return log.fruit_name || 'Fruit';
+    }
+    return 'Log';
   };
 
   if (loading) {
@@ -561,7 +600,7 @@ export default function ChallengeDetail() {
                   )}
                   <div className="log-content">
                     <div className="log-title">
-                      {getMealEmoji(log.meal_type)} {getMealLabel(log.meal_type)}
+                      {getLogEmoji(log)} {getLogLabel(log)}
                     </div>
                     <div className="log-meta">
                       {formatLogDate(log.log_date)}, {formatLogTime(log.log_time)}

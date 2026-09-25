@@ -281,8 +281,10 @@ export default function AddMealLog() {
         logData.meal_name = formData.meal_name;
       } else if (challenge.challenge_type === 'exercise') {
         logData.activity_type = formData.activity_type;
-        logData.meal_name = formData.meal_name; // workout name
         logData.duration = formData.duration;
+        // Generate workout name from activity type
+        const activityLabel = formData.activity_type.charAt(0).toUpperCase() + formData.activity_type.slice(1);
+        logData.meal_name = `${activityLabel} - ${formData.duration} min`;
       } else if (challenge.challenge_type === 'fruit') {
         logData.fruit_name = formData.fruit_name;
         logData.meal_name = formData.fruit_name; // for display compatibility
@@ -377,6 +379,7 @@ export default function AddMealLog() {
       case 'orange': return '🍊';
       case 'grapes': return '🍇';
       case 'mango': return '🥭';
+      case 'other': return '🍑';
       default: return '🍎';
     }
   };
@@ -498,7 +501,7 @@ export default function AddMealLog() {
           <div className="form-section">
             <div className="form-label">Quick pick</div>
             <div className="meal-type-selector">
-              {['Apple', 'Banana', 'Orange', 'Grapes', 'Mango'].map((fruit) => (
+              {['Apple', 'Banana', 'Orange', 'Grapes', 'Mango', 'Other'].map((fruit) => (
                 <button
                   key={fruit}
                   type="button"
@@ -533,30 +536,16 @@ export default function AddMealLog() {
         )}
 
         {challenge.challenge_type === 'exercise' && (
-          <>
-            <div className="form-row">
-              <div className="form-section flex-1-4">
-                <div className="form-label">Workout name</div>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="e.g., Morning run"
-                  value={formData.meal_name}
-                  onChange={(e) => setFormData({ ...formData, meal_name: e.target.value })}
-                />
-              </div>
-              <div className="form-section flex-1">
-                <div className="form-label">Duration</div>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="30 min"
-                  value={formData.duration}
-                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                />
-              </div>
-            </div>
-          </>
+          <div className="form-section">
+            <div className="form-label">Duration</div>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="30 min"
+              value={formData.duration}
+              onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+            />
+          </div>
         )}
 
         {challenge.challenge_type === 'fruit' && (
