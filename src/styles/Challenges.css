@@ -59,9 +59,45 @@
   margin-top: 2px;
 }
 
+/* Tabs */
+.challenges-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  background: #F4F8FE;
+  border-radius: 16px;
+  padding: 4px;
+  margin: 16px 20px 0;
+}
+
+.challenges-tabs .tab {
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 12px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #8693A8;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.challenges-tabs .tab.active {
+  background: #fff;
+  font-weight: 800;
+  color: #14233B;
+  box-shadow: 0 3px 10px rgba(20, 35, 59, 0.08);
+}
+
+.challenges-tabs .tab:active {
+  transform: scale(0.97);
+}
+
 /* Content */
 .challenges-content {
-  padding: 16px 20px;
+  padding: 18px 20px;
 }
 
 /* Large Challenge Card */
@@ -177,6 +213,12 @@
   padding: 4px 11px;
 }
 
+.challenge-date-range {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
 /* Footer */
 .challenge-card-footer {
   display: flex;
@@ -199,6 +241,54 @@
   font-size: 12px;
   font-weight: 600;
   opacity: 0.88;
+}
+
+/* Completed Challenge Card */
+.challenge-card-completed {
+  background: #fff;
+  border: 1px solid #EEF2F8;
+  border-radius: 24px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 20px rgba(20, 35, 59, 0.06);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+}
+
+.challenge-card-completed:active {
+  transform: scale(0.98);
+  box-shadow: 0 5px 15px rgba(20, 35, 59, 0.05);
+}
+
+.completed-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #16A34A;
+  background: #F0FDF4;
+  border-radius: 999px;
+  padding: 4px 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.completed-title {
+  font-family: 'Fredoka', sans-serif;
+  font-weight: 700;
+  font-size: 16.5px;
+  line-height: 1.25;
+  color: #14233B;
+  margin-bottom: 6px;
+}
+
+.completed-subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8693A8;
 }
 
 /* Footer Text */

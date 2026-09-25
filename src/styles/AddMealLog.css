@@ -221,6 +221,12 @@
   overflow: hidden;
 }
 
+.flex-1-4 {
+  flex: 1.4;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .form-input-with-icon {
   position: relative;
   display: flex;

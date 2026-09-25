@@ -91,6 +91,17 @@
   padding: 16px;
 }
 
+/* Duration Section */
+.log-duration-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #F8FAFC;
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
 .log-info-item svg {
   flex-shrink: 0;
   margin-top: 2px;

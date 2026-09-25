@@ -13,9 +13,13 @@ export default function AddMealLog() {
   const suggestedMeal = searchParams.get('meal');
   const currentUser = getCurrentUser();
 
+  const [challenge, setChallenge] = useState(null);
   const [formData, setFormData] = useState({
     meal_type: suggestedMeal || 'dinner',
     meal_name: '',
+    activity_type: 'run',
+    duration: '30 min',
+    fruit_name: 'Apple',
     photo_url: '',
     log_date: new Date().toISOString().split('T')[0],
     log_time: new Date().toTimeString().split(' ')[0].substring(0, 5),
@@ -39,15 +43,32 @@ export default function AddMealLog() {
     // Scroll to top when component mounts
     window.scrollTo(0, 0);
 
+    fetchChallenge();
+
     if (logId) {
       fetchLogData();
     }
   }, [logId]);
 
+  const fetchChallenge = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('challenges')
+        .select('*')
+        .eq('id', challengeId)
+        .single();
+
+      if (error) throw error;
+      setChallenge(data);
+    } catch (error) {
+      console.error('Error fetching challenge:', error);
+    }
+  };
+
   const fetchLogData = async () => {
     try {
       const { data, error } = await supabase
-        .from('meal_logs')
+        .from('challenge_logs')
         .select('*')
         .eq('id', logId)
         .single();
@@ -55,8 +76,11 @@ export default function AddMealLog() {
       if (error) throw error;
 
       setFormData({
-        meal_type: data.meal_type,
-        meal_name: data.meal_name,
+        meal_type: data.meal_type || 'dinner',
+        meal_name: data.meal_name || '',
+        activity_type: data.activity_type || 'run',
+        duration: data.duration || '30 min',
+        fruit_name: data.fruit_name || 'Apple',
         photo_url: data.photo_url || '',
         log_date: data.log_date,
         log_time: data.log_time,
@@ -146,17 +170,25 @@ export default function AddMealLog() {
         return false;
       }
 
-      // Count total meal logs for this challenge
+      // Count total logs for this challenge
       const { data: logs, error: logsError } = await supabase
-        .from('meal_logs')
+        .from('challenge_logs')
         .select('id')
         .eq('challenge_id', challengeId);
 
       if (logsError) throw logsError;
 
-      // Check if all meals are logged (30 days × 3 meals = 90)
-      const totalMealsNeeded = challenge.duration_days * 3;
-      const isComplete = logs && logs.length >= totalMealsNeeded;
+      // Calculate required logs based on challenge type
+      let totalLogsNeeded;
+      if (challenge.challenge_type === 'meal') {
+        // Meal challenge: 30 days × 3 meals = 90
+        totalLogsNeeded = challenge.duration_days * 3;
+      } else {
+        // Exercise/Fruit challenge: 30 days × 1 log = 30
+        totalLogsNeeded = challenge.duration_days;
+      }
+
+      const isComplete = logs && logs.length >= totalLogsNeeded;
 
       if (isComplete) {
         setChallengeTitle(challenge.title);
@@ -179,11 +211,13 @@ export default function AddMealLog() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!challenge) return;
+
     // Clear previous errors
     setErrors({ mealName: '', photo: '', submit: '' });
 
-    // Validate meal name
-    if (!formData.meal_name.trim()) {
+    // Validate required fields based on challenge type
+    if (challenge.challenge_type === 'meal' && !formData.meal_name.trim()) {
       setErrors(prev => ({ ...prev, mealName: 'Meal name is mandatory' }));
       return;
     }
@@ -191,19 +225,26 @@ export default function AddMealLog() {
     try {
       setSaving(true);
 
-      // Check for duplicate meal entry (only when creating new log, not editing)
+      // Check for duplicate entry (only when creating new log, not editing)
       if (!isEditMode) {
-        const { data: existingLogs, error: checkError } = await supabase
-          .from('meal_logs')
+        const queryBuilder = supabase
+          .from('challenge_logs')
           .select('id')
           .eq('challenge_id', challengeId)
-          .eq('meal_type', formData.meal_type)
           .eq('log_date', formData.log_date);
+
+        // For meal challenges, also check meal type
+        if (challenge.challenge_type === 'meal') {
+          queryBuilder.eq('meal_type', formData.meal_type);
+        }
+
+        const { data: existingLogs, error: checkError } = await queryBuilder;
 
         if (checkError) throw checkError;
 
         if (existingLogs && existingLogs.length > 0) {
-          alert(`You already logged ${formData.meal_type} for this date. Please choose a different meal type or date.`);
+          const logTypeLabel = challenge.challenge_type === 'meal' ? formData.meal_type : challenge.challenge_type;
+          alert(`You already logged ${logTypeLabel} for this date. Please choose a different ${challenge.challenge_type === 'meal' ? 'meal type or ' : ''}date.`);
           setSaving(false);
           return;
         }
@@ -219,11 +260,11 @@ export default function AddMealLog() {
         .eq('name', currentUser)
         .single();
 
-      const logData = {
+      // Build log data based on challenge type
+      const baseLogData = {
         challenge_id: challengeId,
         user_id: userData?.id,
-        meal_type: formData.meal_type,
-        meal_name: formData.meal_name,
+        log_type: challenge.challenge_type,
         photo_url: photoUrl,
         log_date: formData.log_date,
         log_time: formData.log_time,
@@ -232,10 +273,25 @@ export default function AddMealLog() {
         updated_at: new Date().toISOString()
       };
 
+      let logData = { ...baseLogData };
+
+      // Add type-specific fields
+      if (challenge.challenge_type === 'meal') {
+        logData.meal_type = formData.meal_type;
+        logData.meal_name = formData.meal_name;
+      } else if (challenge.challenge_type === 'exercise') {
+        logData.activity_type = formData.activity_type;
+        logData.meal_name = formData.meal_name; // workout name
+        logData.duration = formData.duration;
+      } else if (challenge.challenge_type === 'fruit') {
+        logData.fruit_name = formData.fruit_name;
+        logData.meal_name = formData.fruit_name; // for display compatibility
+      }
+
       if (isEditMode) {
         // Update existing log
         const { error } = await supabase
-          .from('meal_logs')
+          .from('challenge_logs')
           .update(logData)
           .eq('id', logId);
 
@@ -243,7 +299,7 @@ export default function AddMealLog() {
       } else {
         // Create new log
         const { error } = await supabase
-          .from('meal_logs')
+          .from('challenge_logs')
           .insert([{
             ...logData,
             created_by: userData?.id,
@@ -267,12 +323,12 @@ export default function AddMealLog() {
       console.error('Error saving log:', error);
 
       // Display user-friendly error message
-      let errorMessage = 'Failed to save meal log. Please try again.';
+      let errorMessage = 'Failed to save log. Please try again.';
 
       if (error.message) {
         // Check for common database errors
         if (error.message.includes('duplicate') || error.message.includes('unique')) {
-          errorMessage = `You already logged ${formData.meal_type} for this date and time. Please use a different time or edit the existing log.`;
+          errorMessage = `You already logged this for this date and time. Please use a different time or edit the existing log.`;
         } else if (error.message.includes('foreign key') || error.message.includes('does not exist')) {
           errorMessage = 'Challenge not found. Please return to the home page and try again.';
         } else if (error.message.includes('invalid') || error.message.includes('violates')) {
@@ -299,6 +355,60 @@ export default function AddMealLog() {
     return mealType.charAt(0).toUpperCase() + mealType.slice(1);
   };
 
+  const getActivityEmoji = (activityType) => {
+    switch (activityType) {
+      case 'walk': return '🚶';
+      case 'run': return '🏃';
+      case 'gym': return '🏋️';
+      case 'yoga': return '🧘';
+      case 'cycle': return '🚴';
+      default: return '🏃';
+    }
+  };
+
+  const getActivityLabel = (activityType) => {
+    return activityType.charAt(0).toUpperCase() + activityType.slice(1);
+  };
+
+  const getFruitEmoji = (fruitName) => {
+    switch (fruitName.toLowerCase()) {
+      case 'apple': return '🍎';
+      case 'banana': return '🍌';
+      case 'orange': return '🍊';
+      case 'grapes': return '🍇';
+      case 'mango': return '🥭';
+      default: return '🍎';
+    }
+  };
+
+  const getHeaderTitle = () => {
+    if (!challenge) return 'Log';
+    switch (challenge.challenge_type) {
+      case 'exercise': return 'Log a workout';
+      case 'fruit': return 'Log a fruit';
+      case 'meal':
+      default: return 'Log a meal';
+    }
+  };
+
+  const getPhotoPlaceholder = () => {
+    if (!challenge) return 'Add a photo';
+    switch (challenge.challenge_type) {
+      case 'exercise': return 'Add a workout photo';
+      case 'fruit': return 'Add a photo of your fruit';
+      case 'meal':
+      default: return 'Add a photo of your meal';
+    }
+  };
+
+  if (!challenge) {
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="add-meal-log-page">
       {/* Header */}
@@ -308,7 +418,7 @@ export default function AddMealLog() {
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
         </button>
-        <div className="header-title">Log a meal</div>
+        <div className="header-title">{getHeaderTitle()}</div>
       </div>
 
       <form onSubmit={handleSubmit} className="add-log-form">
@@ -340,47 +450,127 @@ export default function AddMealLog() {
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2.2" strokeLinecap="round">
                   <path d="M12 5v14M5 12h14"/>
                 </svg>
-                <span className="photo-upload-text">Add a photo of your meal</span>
+                <span className="photo-upload-text">{getPhotoPlaceholder()}</span>
               </>
             )}
           </div>
           {errors.photo && <div className="error-message">{errors.photo}</div>}
         </div>
 
-        {/* Meal Type Selector */}
-        <div className="form-section">
-          <div className="form-label">Which meal?</div>
-          <div className="meal-type-selector">
-            {['breakfast', 'lunch', 'dinner'].map((type) => (
-              <button
-                key={type}
-                type="button"
-                className={`meal-type-btn ${formData.meal_type === type ? 'active' : ''}`}
-                onClick={() => setFormData({ ...formData, meal_type: type })}
-              >
-                {getMealEmoji(type)} {getMealLabel(type)}
-              </button>
-            ))}
+        {/* Type Selector - Different for each challenge type */}
+        {challenge.challenge_type === 'meal' && (
+          <div className="form-section">
+            <div className="form-label">Which meal?</div>
+            <div className="meal-type-selector">
+              {['breakfast', 'lunch', 'dinner'].map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`meal-type-btn ${formData.meal_type === type ? 'active' : ''}`}
+                  onClick={() => setFormData({ ...formData, meal_type: type })}
+                >
+                  {getMealEmoji(type)} {getMealLabel(type)}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Meal Name */}
-        <div className="form-section">
-          <div className="form-label">Meal name</div>
-          <input
-            type="text"
-            className={`form-input ${errors.mealName ? 'error' : ''}`}
-            placeholder="e.g., Grilled chicken salad"
-            value={formData.meal_name}
-            onChange={(e) => {
-              setFormData({ ...formData, meal_name: e.target.value });
-              if (errors.mealName) {
-                setErrors(prev => ({ ...prev, mealName: '' }));
-              }
-            }}
-          />
-          {errors.mealName && <div className="error-message">{errors.mealName}</div>}
-        </div>
+        {challenge.challenge_type === 'exercise' && (
+          <div className="form-section">
+            <div className="form-label">Activity</div>
+            <div className="meal-type-selector">
+              {['walk', 'run', 'gym', 'yoga', 'cycle'].map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  className={`meal-type-btn ${formData.activity_type === type ? 'active' : ''}`}
+                  onClick={() => setFormData({ ...formData, activity_type: type })}
+                >
+                  {getActivityEmoji(type)} {getActivityLabel(type)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {challenge.challenge_type === 'fruit' && (
+          <div className="form-section">
+            <div className="form-label">Quick pick</div>
+            <div className="meal-type-selector">
+              {['Apple', 'Banana', 'Orange', 'Grapes', 'Mango'].map((fruit) => (
+                <button
+                  key={fruit}
+                  type="button"
+                  className={`meal-type-btn ${formData.fruit_name === fruit ? 'active' : ''}`}
+                  onClick={() => setFormData({ ...formData, fruit_name: fruit })}
+                >
+                  {getFruitEmoji(fruit)} {fruit}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Name Field - Different label for each type */}
+        {challenge.challenge_type === 'meal' && (
+          <div className="form-section">
+            <div className="form-label">Meal name</div>
+            <input
+              type="text"
+              className={`form-input ${errors.mealName ? 'error' : ''}`}
+              placeholder="e.g., Grilled chicken salad"
+              value={formData.meal_name}
+              onChange={(e) => {
+                setFormData({ ...formData, meal_name: e.target.value });
+                if (errors.mealName) {
+                  setErrors(prev => ({ ...prev, mealName: '' }));
+                }
+              }}
+            />
+            {errors.mealName && <div className="error-message">{errors.mealName}</div>}
+          </div>
+        )}
+
+        {challenge.challenge_type === 'exercise' && (
+          <>
+            <div className="form-row">
+              <div className="form-section flex-1-4">
+                <div className="form-label">Workout name</div>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g., Morning run"
+                  value={formData.meal_name}
+                  onChange={(e) => setFormData({ ...formData, meal_name: e.target.value })}
+                />
+              </div>
+              <div className="form-section flex-1">
+                <div className="form-label">Duration</div>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="30 min"
+                  value={formData.duration}
+                  onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        {challenge.challenge_type === 'fruit' && (
+          <div className="form-section">
+            <div className="form-label">Fruit</div>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="e.g., Apple"
+              value={formData.fruit_name}
+              onChange={(e) => setFormData({ ...formData, fruit_name: e.target.value })}
+            />
+          </div>
+        )}
 
         {/* Date & Time */}
         <div className="form-row">

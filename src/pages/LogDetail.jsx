@@ -18,7 +18,7 @@ export default function LogDetail() {
   const fetchLog = async () => {
     try {
       const { data, error } = await supabase
-        .from('meal_logs')
+        .from('challenge_logs')
         .select('*')
         .eq('id', logId)
         .single();
@@ -37,7 +37,7 @@ export default function LogDetail() {
       setDeleting(true);
 
       const { error } = await supabase
-        .from('meal_logs')
+        .from('challenge_logs')
         .delete()
         .eq('id', logId);
 
@@ -88,6 +88,54 @@ export default function LogDetail() {
     return mealType.charAt(0).toUpperCase() + mealType.slice(1);
   };
 
+  const getActivityEmoji = (activityType) => {
+    switch (activityType) {
+      case 'walk': return '🚶';
+      case 'run': return '🏃';
+      case 'gym': return '🏋️';
+      case 'yoga': return '🧘';
+      case 'cycle': return '🚴';
+      default: return '💪';
+    }
+  };
+
+  const getActivityLabel = (activityType) => {
+    return activityType.charAt(0).toUpperCase() + activityType.slice(1);
+  };
+
+  const getLogEmoji = (log) => {
+    if (log.log_type === 'meal') {
+      return getMealEmoji(log.meal_type);
+    } else if (log.log_type === 'exercise') {
+      return getActivityEmoji(log.activity_type);
+    } else if (log.log_type === 'fruit') {
+      return '🍎';
+    }
+    return '📝';
+  };
+
+  const getLogLabel = (log) => {
+    if (log.log_type === 'meal') {
+      return getMealLabel(log.meal_type);
+    } else if (log.log_type === 'exercise') {
+      return getActivityLabel(log.activity_type);
+    } else if (log.log_type === 'fruit') {
+      return 'Fruit';
+    }
+    return 'Log';
+  };
+
+  const getPageTitle = (log) => {
+    if (log.log_type === 'meal') {
+      return 'Meal Log';
+    } else if (log.log_type === 'exercise') {
+      return 'Exercise Log';
+    } else if (log.log_type === 'fruit') {
+      return 'Fruit Log';
+    }
+    return 'Log Details';
+  };
+
   if (loading) {
     return (
       <div className="loading-container">
@@ -114,7 +162,7 @@ export default function LogDetail() {
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
         </button>
-        <div className="header-title">Meal Log</div>
+        <div className="header-title">{getPageTitle(log)}</div>
       </div>
 
       <div className="log-detail-content">
@@ -125,16 +173,16 @@ export default function LogDetail() {
           </div>
         )}
 
-        {/* Meal Type Badge */}
+        {/* Log Type Badge */}
         <div className="log-meal-type-badge">
-          <span className="meal-emoji">{getMealEmoji(log.meal_type)}</span>
-          <span className="meal-type-label">{getMealLabel(log.meal_type)}</span>
+          <span className="meal-emoji">{getLogEmoji(log)}</span>
+          <span className="meal-type-label">{getLogLabel(log)}</span>
         </div>
 
-        {/* Meal Name */}
+        {/* Log Name */}
         <div className="log-meal-name">{log.meal_name}</div>
 
-        {/* Date & Time */}
+        {/* Date, Time & Duration */}
         <div className="log-datetime-row">
           <div className="log-info-item">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -157,6 +205,20 @@ export default function LogDetail() {
             </div>
           </div>
         </div>
+
+        {/* Duration (for exercise logs) */}
+        {log.log_type === 'exercise' && log.duration && (
+          <div className="log-duration-section">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4D8BF0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7v5l3.2 2"/>
+            </svg>
+            <div className="log-info-text">
+              <div className="log-info-label">Duration</div>
+              <div className="log-info-value">{log.duration} minutes</div>
+            </div>
+          </div>
+        )}
 
         {/* Note */}
         {log.note && (
@@ -198,7 +260,7 @@ export default function LogDetail() {
             </div>
             <div className="delete-modal-title">Delete this log?</div>
             <div className="delete-modal-message">
-              This will permanently delete this meal log. This action cannot be undone.
+              This will permanently delete this log. This action cannot be undone.
             </div>
             <div className="delete-modal-actions">
               <button

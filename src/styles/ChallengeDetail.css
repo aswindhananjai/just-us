@@ -170,6 +170,63 @@
   padding: 4px 6px;
 }
 
+/* Single Log Card (for exercise/fruit challenges) */
+.single-log-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #EFF5FE;
+  border: 1px solid #BFD5F8;
+  border-radius: 18px;
+  padding: 14px 16px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s;
+}
+
+.single-log-card:active {
+  transform: scale(0.98);
+  background: #E3EDFC;
+}
+
+.single-log-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.single-log-content {
+  flex: 1;
+}
+
+.single-log-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #14233B;
+}
+
+.single-log-subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #8693A8;
+  margin-top: 3px;
+}
+
+.single-log-checkmark {
+  flex-shrink: 0;
+}
+
+.single-log-empty {
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
 /* Calendar */
 .calendar-section {
   padding: 22px 20px 0;

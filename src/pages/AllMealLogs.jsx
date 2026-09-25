@@ -47,7 +47,7 @@ export default function AllMealLogs() {
 
       // Get total count
       const { count } = await supabase
-        .from('meal_logs')
+        .from('challenge_logs')
         .select('*', { count: 'exact', head: true })
         .eq('challenge_id', challengeId);
 
@@ -55,7 +55,7 @@ export default function AllMealLogs() {
 
       // Get logs with pagination
       const { data, error } = await supabase
-        .from('meal_logs')
+        .from('challenge_logs')
         .select('*')
         .eq('challenge_id', challengeId)
         .order('log_date', { ascending: false })
@@ -111,6 +111,50 @@ export default function AllMealLogs() {
     return mealType.charAt(0).toUpperCase() + mealType.slice(1);
   };
 
+  const getActivityEmoji = (activityType) => {
+    switch (activityType) {
+      case 'walk': return '🚶';
+      case 'run': return '🏃';
+      case 'gym': return '🏋️';
+      case 'yoga': return '🧘';
+      case 'cycle': return '🚴';
+      default: return '💪';
+    }
+  };
+
+  const getActivityLabel = (activityType) => {
+    return activityType.charAt(0).toUpperCase() + activityType.slice(1);
+  };
+
+  const getLogEmoji = (log) => {
+    if (log.log_type === 'meal') {
+      return getMealEmoji(log.meal_type);
+    } else if (log.log_type === 'exercise') {
+      return getActivityEmoji(log.activity_type);
+    } else if (log.log_type === 'fruit') {
+      return '🍎';
+    }
+    return '📝';
+  };
+
+  const getLogLabel = (log) => {
+    if (log.log_type === 'meal') {
+      return getMealLabel(log.meal_type);
+    } else if (log.log_type === 'exercise') {
+      return getActivityLabel(log.activity_type);
+    } else if (log.log_type === 'fruit') {
+      return 'Fruit';
+    }
+    return 'Log';
+  };
+
+  const getLogSubtitle = (log) => {
+    if (log.log_type === 'exercise' && log.duration) {
+      return `${log.duration} min`;
+    }
+    return '';
+  };
+
   const groupLogsByDate = () => {
     const grouped = {};
     logs.forEach(log => {
@@ -147,16 +191,16 @@ export default function AllMealLogs() {
         </button>
         <div className="header-text">
           <div className="header-title">All logs</div>
-          <div className="header-subtitle">{totalCount} meals logged</div>
+          <div className="header-subtitle">{totalCount} logs</div>
         </div>
       </div>
 
       <div className="all-logs-content">
         {logs.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-emoji">🍽️</div>
+            <div className="empty-emoji">📝</div>
             <div className="empty-title">No logs yet</div>
-            <div className="empty-subtitle">Start logging your meals!</div>
+            <div className="empty-subtitle">Start logging your progress!</div>
           </div>
         ) : (
           <>
@@ -174,10 +218,13 @@ export default function AllMealLogs() {
                     )}
                     <div className="log-item-content">
                       <div className="log-item-title">
-                        {getMealEmoji(log.meal_type)} {getMealLabel(log.meal_type)}
+                        {getLogEmoji(log)} {getLogLabel(log)}
                       </div>
                       <div className="log-item-name">{log.meal_name}</div>
-                      <div className="log-item-time">{formatLogTime(log.log_time)}</div>
+                      <div className="log-item-time">
+                        {formatLogTime(log.log_time)}
+                        {getLogSubtitle(log) && ` • ${getLogSubtitle(log)}`}
+                      </div>
                     </div>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="m9 6 6 6-6 6"/>

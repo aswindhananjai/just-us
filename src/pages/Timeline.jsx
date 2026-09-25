@@ -85,7 +85,7 @@ export default function Timeline() {
       // Fetch active challenges
       const { data: challengesData, error: challengesError } = await supabase
         .from('challenges')
-        .select('*')
+        .select('*, challenge_logs(log_type, log_date)')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
@@ -189,15 +189,54 @@ export default function Timeline() {
   };
 
   const calculateChallengeProgress = (challenge) => {
-    const startDate = new Date(challenge.start_date);
+    // Parse date string correctly to avoid timezone issues
+    const [year, month, day] = challenge.start_date.split('-').map(Number);
+    const startDate = new Date(year, month - 1, day);
+    startDate.setHours(0, 0, 0, 0);
+
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const diffTime = today.getTime() - startDate.getTime();
     const daysPassed = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
-    const currentDay = Math.min(daysPassed, challenge.duration_days);
+    const currentDay = Math.max(1, Math.min(daysPassed, challenge.duration_days));
+
+    // Calculate completed days based on challenge type
+    let completedDays = 0;
+
+    // Group logs by date
+    const logsByDate = (challenge.challenge_logs || []).reduce((acc, log) => {
+      if (!acc[log.log_date]) acc[log.log_date] = [];
+      acc[log.log_date].push(log.log_type);
+      return acc;
+    }, {});
+
+    // Count completed days
+    for (let i = 0; i < currentDay; i++) {
+      const checkDate = new Date(startDate);
+      checkDate.setDate(startDate.getDate() + i);
+      const dateStr = checkDate.toISOString().split('T')[0];
+
+      const logsForDay = logsByDate[dateStr] || [];
+
+      let dayComplete = false;
+      if (challenge.challenge_type === 'meal') {
+        // Need all 3 meals for meal challenge
+        dayComplete = logsForDay.length >= 3;
+      } else {
+        // Just need 1 log for exercise/fruit
+        dayComplete = logsForDay.length > 0;
+      }
+
+      if (dayComplete) {
+        completedDays++;
+      }
+    }
+
     return {
       currentDay,
       totalDays: challenge.duration_days,
-      percentage: Math.round((currentDay / challenge.duration_days) * 100)
+      percentage: Math.round((completedDays / challenge.duration_days) * 100)
     };
   };
 

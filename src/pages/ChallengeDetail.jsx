@@ -8,8 +8,8 @@ export default function ChallengeDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [challenge, setChallenge] = useState(null);
-  const [mealLogs, setMealLogs] = useState([]);
-  const [todayLogs, setTodayLogs] = useState({ breakfast: null, lunch: null, dinner: null });
+  const [challengeLogs, setChallengeLogs] = useState([]);
+  const [todayLogs, setTodayLogs] = useState({ breakfast: null, lunch: null, dinner: null, log: null });
   const [loading, setLoading] = useState(true);
   const currentUser = getCurrentUser();
 
@@ -28,9 +28,9 @@ export default function ChallengeDetail() {
 
       if (challengeError) throw challengeError;
 
-      // Fetch meal logs for this challenge
+      // Fetch challenge logs for this challenge
       const { data: logsData, error: logsError } = await supabase
-        .from('meal_logs')
+        .from('challenge_logs')
         .select('*')
         .eq('challenge_id', id)
         .order('log_date', { ascending: false })
@@ -39,17 +39,29 @@ export default function ChallengeDetail() {
       if (logsError) throw logsError;
 
       setChallenge(challengeData);
-      setMealLogs(logsData || []);
+      setChallengeLogs(logsData || []);
 
-      // Get today's logs
+      // Get today's logs based on challenge type
       const today = new Date().toISOString().split('T')[0];
-      const todayMeals = (logsData || []).filter(log => log.log_date === today);
-      const todayStatus = {
-        breakfast: todayMeals.find(log => log.meal_type === 'breakfast'),
-        lunch: todayMeals.find(log => log.meal_type === 'lunch'),
-        dinner: todayMeals.find(log => log.meal_type === 'dinner')
-      };
-      setTodayLogs(todayStatus);
+      const todayEntries = (logsData || []).filter(log => log.log_date === today);
+
+      if (challengeData.challenge_type === 'meal') {
+        const todayStatus = {
+          breakfast: todayEntries.find(log => log.meal_type === 'breakfast'),
+          lunch: todayEntries.find(log => log.meal_type === 'lunch'),
+          dinner: todayEntries.find(log => log.meal_type === 'dinner'),
+          log: null
+        };
+        setTodayLogs(todayStatus);
+      } else {
+        // For exercise and fruit, we just need one log per day
+        setTodayLogs({
+          breakfast: null,
+          lunch: null,
+          dinner: null,
+          log: todayEntries[0] || null
+        });
+      }
 
     } catch (error) {
       console.error('Error fetching challenge data:', error);
@@ -79,9 +91,13 @@ export default function ChallengeDetail() {
     const streakDates = [];
 
     // Group logs by date
-    const logsByDate = mealLogs.reduce((acc, log) => {
+    const logsByDate = challengeLogs.reduce((acc, log) => {
       if (!acc[log.log_date]) acc[log.log_date] = [];
-      acc[log.log_date].push(log.meal_type);
+      if (challenge.challenge_type === 'meal') {
+        acc[log.log_date].push(log.meal_type);
+      } else {
+        acc[log.log_date].push(log.log_type);
+      }
       return acc;
     }, {});
 
@@ -95,13 +111,21 @@ export default function ChallengeDetail() {
       const checkDateTime = new Date(dateStr);
       if (checkDateTime < startDate) break;
 
-      const mealsForDay = logsByDate[dateStr] || [];
-      const hasBreakfast = mealsForDay.includes('breakfast');
-      const hasLunch = mealsForDay.includes('lunch');
-      const hasDinner = mealsForDay.includes('dinner');
+      const logsForDay = logsByDate[dateStr] || [];
 
-      // All 3 meals must be logged for the streak to continue
-      if (hasBreakfast && hasLunch && hasDinner) {
+      let dayComplete = false;
+      if (challenge.challenge_type === 'meal') {
+        // All 3 meals must be logged for the streak to continue
+        const hasBreakfast = logsForDay.includes('breakfast');
+        const hasLunch = logsForDay.includes('lunch');
+        const hasDinner = logsForDay.includes('dinner');
+        dayComplete = hasBreakfast && hasLunch && hasDinner;
+      } else {
+        // For exercise and fruit, just need one log
+        dayComplete = logsForDay.length > 0;
+      }
+
+      if (dayComplete) {
         streak++;
         streakDates.push(dateStr);
       } else {
@@ -110,7 +134,7 @@ export default function ChallengeDetail() {
       }
     }
 
-    // Count total completed days (all 3 meals logged)
+    // Count total completed days
     for (let i = 0; i < currentDay; i++) {
       const checkDate = new Date(startDate);
       checkDate.setDate(startDate.getDate() + i);
@@ -119,12 +143,19 @@ export default function ChallengeDetail() {
       const day = String(checkDate.getDate()).padStart(2, '0');
       const dateStr = `${year}-${month}-${day}`;
 
-      const mealsForDay = logsByDate[dateStr] || [];
-      const hasBreakfast = mealsForDay.includes('breakfast');
-      const hasLunch = mealsForDay.includes('lunch');
-      const hasDinner = mealsForDay.includes('dinner');
+      const logsForDay = logsByDate[dateStr] || [];
 
-      if (hasBreakfast && hasLunch && hasDinner) {
+      let dayComplete = false;
+      if (challenge.challenge_type === 'meal') {
+        const hasBreakfast = logsForDay.includes('breakfast');
+        const hasLunch = logsForDay.includes('lunch');
+        const hasDinner = logsForDay.includes('dinner');
+        dayComplete = hasBreakfast && hasLunch && hasDinner;
+      } else {
+        dayComplete = logsForDay.length > 0;
+      }
+
+      if (dayComplete) {
         completedDays++;
       }
     }
@@ -154,10 +185,14 @@ export default function ChallengeDetail() {
     // Get the day of week for the start date (0 = Sunday, 1 = Monday, etc.)
     const startDayOfWeek = startDate.getDay();
 
-    // Group logs by date and meal type
-    const logsByDate = mealLogs.reduce((acc, log) => {
+    // Group logs by date
+    const logsByDate = challengeLogs.reduce((acc, log) => {
       if (!acc[log.log_date]) acc[log.log_date] = [];
-      acc[log.log_date].push(log.meal_type);
+      if (challenge.challenge_type === 'meal') {
+        acc[log.log_date].push(log.meal_type);
+      } else {
+        acc[log.log_date].push(log.log_type);
+      }
       return acc;
     }, {});
 
@@ -174,13 +209,23 @@ export default function ChallengeDetail() {
       const isToday = currentDate.getTime() === today.getTime();
       const isFuture = currentDate > today;
 
-      // Check meal completion for this day
-      const mealsForDay = logsByDate[dateStr] || [];
-      const hasBreakfast = mealsForDay.includes('breakfast');
-      const hasLunch = mealsForDay.includes('lunch');
-      const hasDinner = mealsForDay.includes('dinner');
-      const allMealsLogged = hasBreakfast && hasLunch && hasDinner;
-      const someMealsLogged = mealsForDay.length > 0 && !allMealsLogged;
+      // Check completion for this day based on challenge type
+      const logsForDay = logsByDate[dateStr] || [];
+
+      let allLogsComplete = false;
+      let someLogsComplete = false;
+
+      if (challenge.challenge_type === 'meal') {
+        const hasBreakfast = logsForDay.includes('breakfast');
+        const hasLunch = logsForDay.includes('lunch');
+        const hasDinner = logsForDay.includes('dinner');
+        allLogsComplete = hasBreakfast && hasLunch && hasDinner;
+        someLogsComplete = logsForDay.length > 0 && !allLogsComplete;
+      } else {
+        // For exercise and fruit, just need one log
+        allLogsComplete = logsForDay.length > 0;
+        someLogsComplete = false;
+      }
 
       days.push({
         day: i + 1,
@@ -188,13 +233,58 @@ export default function ChallengeDetail() {
         isPast,
         isToday,
         isFuture,
-        allMealsLogged,
-        someMealsLogged,
-        mealsCount: mealsForDay.length
+        allMealsLogged: allLogsComplete,
+        someMealsLogged: someLogsComplete,
+        mealsCount: logsForDay.length
       });
     }
 
     return { days, startDayOfWeek };
+  };
+
+  const getChallengeGradient = (challengeType) => {
+    switch (challengeType) {
+      case 'exercise':
+        return { id: 'blueGradient', colors: ['#4D8BF0', '#1B4FA8'], bgColor: '#E3EDFC' };
+      case 'fruit':
+        return { id: 'greenGradient', colors: ['#4ADE80', '#15803D'], bgColor: '#DCFCE7' };
+      case 'meal':
+      default:
+        return { id: 'orangeGradient', colors: ['#F59E0B', '#EA580C'], bgColor: '#FFF7ED' };
+    }
+  };
+
+  const getChallengeEmoji = () => {
+    if (!challenge) return '🍽️';
+    if (challenge.title.includes('Exercise')) return '🏃';
+    if (challenge.title.includes('Fruit')) return '🍎';
+    return '🍽️';
+  };
+
+  const getChallengeLogLabel = () => {
+    if (!challenge) return 'Logs';
+    switch (challenge.challenge_type) {
+      case 'exercise':
+        return 'Workouts logged';
+      case 'fruit':
+        return 'Fruits logged';
+      case 'meal':
+      default:
+        return 'Meals logged';
+    }
+  };
+
+  const getTodaySectionTitle = () => {
+    if (!challenge) return "Today's log";
+    switch (challenge.challenge_type) {
+      case 'exercise':
+        return "Today's workout";
+      case 'fruit':
+        return "Today's fruit";
+      case 'meal':
+      default:
+        return "Today's meals";
+    }
   };
 
   const formatLogTime = (timeString) => {
@@ -243,7 +333,8 @@ export default function ChallengeDetail() {
 
   const progress = calculateProgress();
   const { days: calendarDays, startDayOfWeek } = getCalendarDays();
-  const recentLogs = mealLogs.slice(0, 3);
+  const recentLogs = challengeLogs.slice(0, 3);
+  const gradient = getChallengeGradient(challenge?.challenge_type);
 
   return (
     <div className="challenge-detail-page">
@@ -254,7 +345,7 @@ export default function ChallengeDetail() {
             <path d="M19 12H5M12 19l-7-7 7-7"/>
           </svg>
         </button>
-        <div className="header-title">{challenge.title}</div>
+        <div className="header-title">{getChallengeEmoji()} {challenge.title}</div>
       </div>
 
       <div className="challenge-detail-content">
@@ -266,7 +357,7 @@ export default function ChallengeDetail() {
               cy="70"
               r="62"
               fill="none"
-              stroke="#FFF7ED"
+              stroke={gradient.bgColor}
               strokeWidth="10"
             />
             <circle
@@ -274,7 +365,7 @@ export default function ChallengeDetail() {
               cy="70"
               r="62"
               fill="none"
-              stroke="url(#orangeGradient)"
+              stroke={`url(#${gradient.id})`}
               strokeWidth="10"
               strokeLinecap="round"
               strokeDasharray={`${2 * Math.PI * 62}`}
@@ -283,9 +374,9 @@ export default function ChallengeDetail() {
               style={{ transition: 'stroke-dashoffset 0.5s ease' }}
             />
             <defs>
-              <linearGradient id="orangeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#F59E0B" />
-                <stop offset="100%" stopColor="#EA580C" />
+              <linearGradient id={gradient.id} x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor={gradient.colors[0]} />
+                <stop offset="100%" stopColor={gradient.colors[1]} />
               </linearGradient>
             </defs>
           </svg>
@@ -308,41 +399,73 @@ export default function ChallengeDetail() {
           </div>
           <div className="challenge-stat-divider"></div>
           <div className="challenge-stat-item">
-            <div className="stat-value">{mealLogs.length}</div>
-            <div className="stat-label">Meals logged</div>
+            <div className="stat-value">{challengeLogs.length}</div>
+            <div className="stat-label">{getChallengeLogLabel()}</div>
           </div>
         </div>
 
-        {/* Today's Meals */}
+        {/* Today's Logs Section */}
         <div className="todays-meals-section">
-          <div className="section-title">Today's meals</div>
-          <div className="meals-grid">
-            {['breakfast', 'lunch', 'dinner'].map((mealType) => {
-              const log = todayLogs[mealType];
-              const isLogged = !!log;
+          <div className="section-title">{getTodaySectionTitle()}</div>
 
-              return (
-                <div
-                  key={mealType}
-                  className={`meal-card ${isLogged ? 'logged' : 'not-logged'}`}
-                  onClick={() => !isLogged && navigate(`/challenge/${id}/log?meal=${mealType}`)}
-                >
-                  <div className="meal-emoji">{getMealEmoji(mealType)}</div>
-                  <div className="meal-name">{getMealLabel(mealType)}</div>
-                  {isLogged ? (
-                    <div className="meal-status logged">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M20 6 9 17l-5-5"/>
-                      </svg>
-                      {formatLogTime(log.log_time)}
-                    </div>
-                  ) : (
-                    <div className="meal-status not-logged">Log now</div>
-                  )}
+          {challenge.challenge_type === 'meal' ? (
+            // 3-meal grid for meal challenges
+            <div className="meals-grid">
+              {['breakfast', 'lunch', 'dinner'].map((mealType) => {
+                const log = todayLogs[mealType];
+                const isLogged = !!log;
+
+                return (
+                  <div
+                    key={mealType}
+                    className={`meal-card ${isLogged ? 'logged' : 'not-logged'}`}
+                    onClick={() => !isLogged && navigate(`/challenge/${id}/log?meal=${mealType}`)}
+                  >
+                    <div className="meal-emoji">{getMealEmoji(mealType)}</div>
+                    <div className="meal-name">{getMealLabel(mealType)}</div>
+                    {isLogged ? (
+                      <div className="meal-status logged">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M20 6 9 17l-5-5"/>
+                        </svg>
+                        {formatLogTime(log.log_time)}
+                      </div>
+                    ) : (
+                      <div className="meal-status not-logged">Log now</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            // Single log card for exercise/fruit challenges
+            <div className="single-log-card" onClick={() => !todayLogs.log && navigate(`/challenge/${id}/log`)}>
+              <div className="single-log-icon">
+                {getChallengeEmoji()}
+              </div>
+              <div className="single-log-content">
+                <div className="single-log-title">
+                  {challenge.challenge_type === 'exercise' ? "Today's workout" : "Today's fruit"}
                 </div>
-              );
-            })}
-          </div>
+                <div className="single-log-subtitle">
+                  {todayLogs.log ? `Logged at ${formatLogTime(todayLogs.log.log_time)}` : 'Not logged yet'}
+                </div>
+              </div>
+              {todayLogs.log ? (
+                <div className="single-log-checkmark">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6 9 17l-5-5"/>
+                  </svg>
+                </div>
+              ) : (
+                <div className="single-log-empty">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#CBD5E1" strokeWidth="2" strokeDasharray="2 2"/>
+                  </svg>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 30-day Calendar */}
@@ -446,7 +569,7 @@ export default function ChallengeDetail() {
                   </div>
                 </div>
               ))}
-              {mealLogs.length > 3 && (
+              {challengeLogs.length > 3 && (
                 <button className="see-all-logs-btn" onClick={() => navigate(`/challenge/${id}/logs`)}>
                   See all logs
                 </button>
